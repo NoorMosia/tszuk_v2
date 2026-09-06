@@ -159,8 +159,10 @@ const tshepoBio = [
   .minds__portrait-wrapper {
     position: relative;
     display: inline-block;
-    width: 280px;
-    height: 280px;
+    /* Fluid so the round portrait never crowds narrow phones, capped at the
+       original 280px on larger screens. */
+    width: min(280px, 72vw);
+    height: min(280px, 72vw);
     margin-bottom: 1.5rem;
     background-color: transparent;
     border-radius: 50%;
