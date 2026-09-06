@@ -19,7 +19,7 @@ interface Props {
 
 const { entry, index = 0 } = Astro.props;
 const { data } = entry;
-const href = `/work/${entry.id}`;
+const href = `/work/${entry.id}/`;
 const imageSide = businessRowImageSide(index);
 const revealDelay = `${Math.min(index, 6) * 80}ms`;
 ---

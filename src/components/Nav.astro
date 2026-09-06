@@ -18,12 +18,13 @@
 
 const links = [
   { href: '/', label: 'Home' },
-  { href: '/work/businesses', label: 'Businesses' },
-  { href: '/work/personalities', label: 'Personalities' },
-  { href: '/founders', label: 'Founders' },
-  { href: '/about', label: 'About' },
+  { href: '/work/businesses/', label: 'Businesses' },
+  { href: '/work/personalities/', label: 'Personalities' },
+  { href: '/founders/', label: 'Founders' },
+  { href: '/about/', label: 'About' },
 ];
 
+// Compare paths ignoring a trailing slash so the match is robust either way.
 function normalize(path: string): string {
   if (path.length > 1 && path.endsWith('/')) return path.slice(0, -1);
   return path;
@@ -49,7 +50,7 @@ const current = normalize(Astro.url.pathname);
   <ul class="nav__list" id="nav-menu">
     {
       links.map((link) => {
-        const isActive = current === link.href;
+        const isActive = current === normalize(link.href);
         return (
           <li>
             <a
@@ -74,8 +75,11 @@ const current = normalize(Astro.url.pathname);
       return p.length > 1 && p.endsWith('/') ? p.slice(0, -1) : p;
     })();
 
+    const strip = (p: string) =>
+      p.length > 1 && p.endsWith('/') ? p.slice(0, -1) : p;
+
     document.querySelectorAll<HTMLAnchorElement>('.nav__link').forEach((a) => {
-      const href = a.getAttribute('href') || '';
+      const href = strip(a.getAttribute('href') || '');
       const isActive = path === href;
       a.classList.toggle('is-active', isActive);
       if (isActive) {
