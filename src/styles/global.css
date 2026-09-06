@@ -1,14 +1,20 @@
 /* === Design System Tokens === */
 :root {
-  /* Colors */
-  --color-sage: #E6F2DD;
-  --color-white: #FFFFFF;
-  --color-accent: #88BDA4;
-  --color-text: #181818;
-  --color-dark: #1A231E;
-  --color-sage-tint: #F4F9F1;
-  --color-divider: #EAEAEA;
-  --color-muted: #777777;
+  /* Colors — warm, minimal palette (warm neutrals + single warm terracotta accent).
+     No green/cyan hue components remain. Contrast verified against WCAG 2.1 AA. */
+  --color-bg: #FAF6F1;          /* warm off-white page background */
+  --color-surface: #FFFDFB;     /* warm white cards/surfaces */
+  --color-white: #FFFDFB;       /* legacy alias -> warm white */
+  --color-sage: #F2E7DA;        /* warm cream tint (section wash) */
+  --color-sage-tint: #F7EFE6;   /* lighter warm tint (image frame bg) */
+  --color-accent: #9E4321;      /* single warm terracotta accent (darkened for AA text) */
+  --color-accent-hover: #82361A;/* darker accent for hover states */
+  --color-accent-soft: #C47A50; /* warm complementary tone (decorative only) */
+  --color-text: #231A15;        /* warm near-black body text */
+  --color-dark: #2A211B;        /* warm dark (footer bg) */
+  --color-divider: #EAE0D5;     /* warm hairline divider */
+  --color-muted: #6F6157;       /* warm muted text (darkened for AA body) */
+  --color-error: #B4402A;       /* semantic error text */
 
   /* Typography */
   --font-family: 'Inter', sans-serif;
@@ -75,7 +81,7 @@ body {
   font-weight: var(--font-weight-regular);
   line-height: var(--line-height-body);
   color: var(--color-text);
-  background-color: #F7F7F6;
+  background-color: var(--color-bg);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

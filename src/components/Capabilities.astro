@@ -40,23 +40,31 @@
 </section>
 
 <script>
-  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function initCapabilities() {
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const section = document.querySelector('.capabilities') as HTMLElement | null;
+    if (!section) return;
 
-  if (!prefersReducedMotion) {
-    const section = document.querySelector('.capabilities') as HTMLElement;
-    if (section) {
-      const observer = new IntersectionObserver(
-        ([entry]) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
-            observer.unobserve(entry.target);
-          }
-        },
-        { threshold: 0.15 }
-      );
-      observer.observe(section);
+    if (prefersReducedMotion) {
+      section.classList.add('visible');
+      return;
     }
+    if (section.dataset.motionInit === 'true') return;
+    section.dataset.motionInit = 'true';
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      },
+      { threshold: 0.15 }
+    );
+    observer.observe(section);
   }
+
+  document.addEventListener('astro:page-load', initCapabilities);
 </script>
 
 <style>

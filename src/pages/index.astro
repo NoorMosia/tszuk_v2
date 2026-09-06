@@ -1,99 +1,103 @@
 ---
+import { getCollection } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
 import Cover from '../components/Cover.astro';
 import Hero from '../components/Hero.astro';
-import CaseStudyCard from '../components/CaseStudyCard.astro';
+import WorkSection from '../components/WorkSection.astro';
 import Marquee from '../components/Marquee.astro';
 import Capabilities from '../components/Capabilities.astro';
-import Minds from '../components/Minds.astro';
-import Footer from '../components/Footer.astro';
-import artist from '../assets/artist.jpg';
-import company from '../assets/company.jpg';
+
+const caseStudies = await getCollection('caseStudies');
+const businesses = caseStudies.filter((e) => e.data.group === 'business');
+const personalities = caseStudies.filter((e) => e.data.group === 'personality');
 ---
 
 <Layout title="tszuk | a brand that builds">
   <Cover />
-  <main>
+  <div class="home">
     <Hero />
-    <section class="work" aria-label="Our work">
-      <div class="work__header">
-        <h2 class="work__heading">Our Work</h2>
-      </div>
-      <div class="work__cards">
-        <CaseStudyCard
-          number="01"
-          clientName="Boss Reminisce"
-          descriptor="singer/songwriter"
-          scope={["Web presence", "Strategic partnership", "Brand management"]}
-          image={artist}
-          imageAlt="Boss Reminisce artist branding project by tszuk"
-          link="#"
-          index={0}
-        />
-        <CaseStudyCard
-          number="02"
-          clientName="Sunset Retreat"
-          descriptor="hospitality"
-          scope={["Logo", "Brand identity", "Website"]}
-          image={company}
-          imageAlt="Sunset Retreat hospitality branding project by tszuk"
-          link="#"
-          index={1}
-        />
-      </div>
-    </section>
+
+    <WorkSection
+      heading="Businesses"
+      viewAllHref="/work/businesses"
+      entries={businesses}
+    />
+    <WorkSection
+      heading="Personalities"
+      viewAllHref="/work/personalities"
+      entries={personalities}
+    />
+
     <Marquee />
     <Capabilities />
-    <Minds />
-  </main>
-  <Footer />
+
+    <a class="about-teaser" href="/about">
+      <p class="about-teaser__eyebrow">About tszuk</p>
+      <p class="about-teaser__lead">
+        A branding studio in Port Elizabeth building identities that resonate —
+        for companies and personalities alike.
+      </p>
+      <span class="about-teaser__cta">Meet the studio <span aria-hidden="true">→</span></span>
+    </a>
+  </div>
 </Layout>
 
 <style>
-  main {
+  .home {
     position: relative;
     z-index: 1;
-    background-color: #F7F7F6;
+    background-color: var(--color-bg);
   }
 
-  .work {
+  .about-teaser {
+    display: block;
+    max-width: var(--content-max-width);
+    margin: 0 auto;
     padding: var(--section-padding-mobile) 1.5rem;
-    width: 100%;
+    color: var(--color-text);
     text-align: center;
   }
 
-  .work__header {
-    margin-bottom: 3rem;
-  }
-
-  .work__heading {
-    font-size: clamp(1.25rem, 3vw, 1.5rem);
-    font-weight: var(--font-weight-light);
+  .about-teaser__eyebrow {
+    font-size: 0.85rem;
     letter-spacing: var(--letter-spacing-subtitle);
     text-transform: uppercase;
     color: var(--color-muted);
-    margin-bottom: 48px;
+    margin-bottom: 1.25rem;
   }
 
-  .work__cards {
-    display: grid;
-    gap: 4.5rem;
-    text-align: left;
+  .about-teaser__lead {
+    font-size: clamp(1.35rem, 3.5vw, 2rem);
+    font-weight: var(--font-weight-light);
+    line-height: 1.4;
+    max-width: var(--manifesto-max-width);
+    margin: 0 auto 1.5rem;
   }
 
-  @media (min-width: 768px) {
-    .work {
-      padding: var(--section-padding) 6rem;
+  .about-teaser__cta {
+    display: inline-block;
+    font-size: 0.95rem;
+    color: var(--color-accent);
+  }
+
+  .about-teaser__cta span {
+    display: inline-block;
+    transition: transform var(--duration-hover) var(--easing);
+  }
+
+  .about-teaser:hover .about-teaser__cta span {
+    transform: translateX(4px);
+  }
+
+  @media (min-width: 900px) {
+    .about-teaser {
+      padding: var(--section-padding) 2.5rem;
     }
-
-    .work__cards {
-      gap: 6rem;
-    }
   }
 
-  @media (min-width: 1024px) {
-    .work__cards {
-      gap: 8rem;
+  @media (prefers-reduced-motion: reduce) {
+    .about-teaser__cta span {
+      transition: none;
     }
   }
 </style>

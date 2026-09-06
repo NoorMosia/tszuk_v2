@@ -1,0 +1,82 @@
+---
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  scope: 'site' | 'case-study';
+  entry?: CollectionEntry<'caseStudies'>;
+}
+
+const { scope, entry } = Astro.props;
+
+const SITE_URL = 'https://tszuk.co.za';
+const ORG_NAME = 'tszuk';
+const ORG_DESCRIPTION =
+  'tszuk is a branding studio in Port Elizabeth, South Africa, collaborating with companies and personalities to build identities that resonate.';
+
+type JsonLd = Record<string, unknown>;
+
+/**
+ * Each builder returns `null` when a required property is missing, so the
+ * component omits the JSON-LD block entirely rather than emitting incomplete
+ * or invalid structured data (Req 8.5).
+ */
+function buildOrganization(): JsonLd | null {
+  if (!ORG_NAME || !ORG_DESCRIPTION || !SITE_URL) return null;
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: ORG_NAME,
+    description: ORG_DESCRIPTION,
+    url: SITE_URL,
+    founder: [
+      { '@type': 'Person', name: 'Zukisa' },
+      { '@type': 'Person', name: 'Tshepo' },
+    ],
+  };
+}
+
+function buildPerson(
+  name: string,
+  jobTitle: string
+): JsonLd | null {
+  if (!name || !jobTitle) return null;
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    name,
+    jobTitle,
+    worksFor: { '@type': 'Organization', name: ORG_NAME, url: SITE_URL },
+  };
+}
+
+function buildCreativeWork(e?: CollectionEntry<'caseStudies'>): JsonLd | null {
+  if (!e || !e.data.name || !e.data.description) return null;
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'CreativeWork',
+    name: e.data.name,
+    description: e.data.description,
+    url: `${SITE_URL}/work/${e.id}`,
+    creator: { '@type': 'Organization', name: ORG_NAME, url: SITE_URL },
+  };
+}
+
+let blocks: JsonLd[] = [];
+
+if (scope === 'site') {
+  blocks = [
+    buildOrganization(),
+    buildPerson('Zukisa', 'Co-Founder & Creative Director'),
+    buildPerson('Tshepo', 'Co-Founder & Systems Director'),
+  ].filter((b): b is JsonLd => b !== null);
+} else if (scope === 'case-study') {
+  const work = buildCreativeWork(entry);
+  if (work) blocks = [work];
+}
+---
+
+{
+  blocks.map((block) => (
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(block)} />
+  ))
+}

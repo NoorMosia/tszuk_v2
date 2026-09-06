@@ -12,23 +12,32 @@
   </div>
 </section>
 <script>
-  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function initHero() {
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const hero = document.querySelector('.hero') as HTMLElement | null;
+    if (!hero) return;
 
-  if (!prefersReducedMotion) {
-    // Scroll-reveal for the section (one-shot)
-    const hero = document.querySelector('.hero') as HTMLElement;
-    if (hero) {
-      const sectionObserver = new IntersectionObserver(
-        ([entry]) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
-            sectionObserver.unobserve(entry.target);
-          }
-        },
-        { threshold: 0.15 }
+    if (prefersReducedMotion) {
+      hero.classList.add('visible');
+      document.querySelectorAll('.highlight').forEach((s) =>
+        s.classList.add('highlight--active')
       );
-      sectionObserver.observe(hero);
+      return;
     }
+    if (hero.dataset.motionInit === 'true') return;
+    hero.dataset.motionInit = 'true';
+
+    // Scroll-reveal for the section (one-shot)
+    const sectionObserver = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          sectionObserver.unobserve(entry.target);
+        }
+      },
+      { threshold: 0.15 }
+    );
+    sectionObserver.observe(hero);
 
     // Highlight effect per span (toggle, not one-shot)
     const highlights = document.querySelectorAll('.highlight');
@@ -40,9 +49,10 @@
       },
       { threshold: 0.5 }
     );
-
     highlights.forEach((span) => highlightObserver.observe(span));
   }
+
+  document.addEventListener('astro:page-load', initHero);
 </script>
 
 <style>
@@ -63,7 +73,7 @@
   .hero.visible {
     opacity: 1;
     transform: translateY(0);
-    background-color: white;
+    background-color: var(--color-surface);
     margin-top: -231px;
   }
 

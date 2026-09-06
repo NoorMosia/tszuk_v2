@@ -1,0 +1,150 @@
+---
+/**
+ * Nav — persistent primary navigation.
+ *
+ * Renders plain anchor links (works with JS off). Active state is computed from
+ * the normalized pathname so at most one link is active, and exactly one when
+ * the path matches a top-level route. Case-study pages (`/work/{slug}`) leave
+ * all top-level links inactive. The header persists across View Transitions, so
+ * a tiny `astro:page-load` handler recomputes the active link after each swap.
+ */
+
+const links = [
+  { href: '/', label: 'Home' },
+  { href: '/work/businesses', label: 'Businesses' },
+  { href: '/work/personalities', label: 'Personalities' },
+  { href: '/about', label: 'About' },
+];
+
+function normalize(path: string): string {
+  if (path.length > 1 && path.endsWith('/')) return path.slice(0, -1);
+  return path;
+}
+
+const current = normalize(Astro.url.pathname);
+---
+
+<nav class="nav" aria-label="Primary">
+  <a href="/" class="nav__brand">tszuk.</a>
+  <ul class="nav__list">
+    {
+      links.map((link) => {
+        const isActive = current === link.href;
+        return (
+          <li>
+            <a
+              href={link.href}
+              class:list={['nav__link', { 'is-active': isActive }]}
+              aria-current={isActive ? 'page' : undefined}
+            >
+              {link.label}
+            </a>
+          </li>
+        );
+      })
+    }
+  </ul>
+</nav>
+
+<script>
+  // Recompute active state after each client-side navigation (header persists).
+  function updateActiveNav() {
+    const path = (() => {
+      const p = window.location.pathname;
+      return p.length > 1 && p.endsWith('/') ? p.slice(0, -1) : p;
+    })();
+
+    document.querySelectorAll<HTMLAnchorElement>('.nav__link').forEach((a) => {
+      const href = a.getAttribute('href') || '';
+      const isActive = path === href;
+      a.classList.toggle('is-active', isActive);
+      if (isActive) {
+        a.setAttribute('aria-current', 'page');
+      } else {
+        a.removeAttribute('aria-current');
+      }
+    });
+  }
+
+  document.addEventListener('astro:page-load', updateActiveNav);
+</script>
+
+<style>
+  .nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding: 1rem 1.5rem;
+    background-color: color-mix(in srgb, var(--color-bg) 88%, transparent);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--color-divider);
+  }
+
+  .nav__brand {
+    font-weight: var(--font-weight-bold);
+    font-size: 1.1rem;
+    letter-spacing: -0.02em;
+    color: var(--color-text);
+  }
+
+  .nav__list {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .nav__link {
+    position: relative;
+    font-size: 0.9rem;
+    color: var(--color-muted);
+    padding: 0.25rem 0;
+    transition: color var(--duration-hover) var(--easing);
+  }
+
+  .nav__link::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -2px;
+    height: 2px;
+    background-color: var(--color-accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform var(--duration-hover) var(--easing);
+  }
+
+  .nav__link:hover {
+    color: var(--color-text);
+  }
+
+  .nav__link.is-active {
+    color: var(--color-text);
+    font-weight: var(--font-weight-bold);
+  }
+
+  .nav__link.is-active::after {
+    transform: scaleX(1);
+  }
+
+  @media (min-width: 768px) {
+    .nav {
+      padding: 1rem 2.5rem;
+    }
+
+    .nav__list {
+      gap: 2rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nav__link,
+    .nav__link::after {
+      transition: none;
+    }
+  }
+</style>

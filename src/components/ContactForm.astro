@@ -1,4 +1,12 @@
 ---
+/**
+ * ContactForm — static-safe, Supabase-gated contact form.
+ *
+ * Progressive enhancement: a visible mailto:hello@tszuk.com link is always
+ * present, so with JS off the form degrades to email. With JS on, submissions
+ * route through the env-gated Supabase adapter (or a success + mailto fallback
+ * when the adapter is disabled). Per-field validation withholds submission.
+ */
 ---
 
 <form class="contact-form" novalidate>
@@ -9,9 +17,12 @@
       id="contact-name"
       name="name"
       required
+      maxlength="100"
       autocomplete="name"
       class="contact-form__input"
+      aria-describedby="error-name"
     />
+    <p class="contact-form__error" id="error-name" data-error-for="name"></p>
   </div>
 
   <div class="contact-form__field">
@@ -21,9 +32,12 @@
       id="contact-email"
       name="email"
       required
+      maxlength="254"
       autocomplete="email"
       class="contact-form__input"
+      aria-describedby="error-email"
     />
+    <p class="contact-form__error" id="error-email" data-error-for="email"></p>
   </div>
 
   <fieldset class="contact-form__fieldset">
@@ -50,62 +64,104 @@
       id="contact-message"
       name="message"
       required
+      maxlength="5000"
       rows="5"
       class="contact-form__input contact-form__textarea"
+      aria-describedby="error-message"
     ></textarea>
+    <p class="contact-form__error" id="error-message" data-error-for="message"></p>
   </div>
 
   <button type="submit" class="contact-form__submit">Send Inquiry</button>
+
+  <p class="contact-form__fallback">
+    Prefer email? Reach us any time at
+    <a href="mailto:hello@tszuk.com">hello@tszuk.com</a>.
+  </p>
 
   <div class="contact-form__status" aria-live="polite"></div>
 </form>
 
 <script>
-  const form = document.querySelector('.contact-form') as HTMLFormElement;
-  const status = document.querySelector('.contact-form__status') as HTMLElement;
+  import { submitContact, isValidEmail } from '../lib/contact';
 
-  if (form) {
+  function initContactForm() {
+    const form = document.querySelector('.contact-form') as HTMLFormElement | null;
+    if (!form || form.dataset.bound === 'true') return;
+    form.dataset.bound = 'true';
+
+    const status = form.querySelector('.contact-form__status') as HTMLElement;
+
+    function setError(field: string, message: string) {
+      const el = form!.querySelector(`[data-error-for="${field}"]`) as HTMLElement | null;
+      if (el) el.textContent = message;
+    }
+
+    function clearErrors() {
+      form!
+        .querySelectorAll('.contact-form__error')
+        .forEach((el) => (el.textContent = ''));
+    }
+
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
-
-      const name = (form.querySelector('[name="name"]') as HTMLInputElement).value.trim();
-      const email = (form.querySelector('[name="email"]') as HTMLInputElement).value.trim();
-      const message = (form.querySelector('[name="message"]') as HTMLTextAreaElement).value.trim();
-      const projectType = (form.querySelector('[name="projectType"]:checked') as HTMLInputElement)?.value || 'other';
-
-      // Client-side validation
-      if (!name || !email || !message) {
-        status.textContent = 'Please fill in all required fields.';
-        status.className = 'contact-form__status contact-form__status--error';
-        return;
-      }
-
-      // Show loading state
-      const submitBtn = form.querySelector('.contact-form__submit') as HTMLButtonElement;
-      submitBtn.disabled = true;
-      submitBtn.textContent = 'Sending...';
+      clearErrors();
       status.textContent = '';
       status.className = 'contact-form__status';
 
+      const name = (form.querySelector('[name="name"]') as HTMLInputElement).value.trim();
+      const email = (form.querySelector('[name="email"]') as HTMLInputElement).value.trim();
+      const message = (
+        form.querySelector('[name="message"]') as HTMLTextAreaElement
+      ).value.trim();
+      const projectType =
+        (form.querySelector('[name="projectType"]:checked') as HTMLInputElement)?.value ||
+        'other';
+
+      // Per-field validation.
+      let valid = true;
+      if (!name) {
+        setError('name', 'Please enter your name.');
+        valid = false;
+      }
+      if (!email) {
+        setError('email', 'Please enter your email.');
+        valid = false;
+      } else if (!isValidEmail(email)) {
+        setError('email', 'Please enter a valid email address.');
+        valid = false;
+      }
+      if (!message) {
+        setError('message', 'Please enter a message.');
+        valid = false;
+      }
+      if (!valid) return;
+
+      const submitBtn = form.querySelector('.contact-form__submit') as HTMLButtonElement;
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Sending…';
+
       try {
-        const res = await fetch('/api/contact', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name, email, message, projectType }),
-        });
+        const result = await submitContact({ name, email, message, projectType });
 
-        const data = await res.json();
-
-        if (res.ok) {
+        if (result.status === 'sent') {
           status.textContent = 'Inquiry received. We will be in touch shortly.';
           status.className = 'contact-form__status contact-form__status--success';
           form.reset();
+        } else if (result.status === 'fallback') {
+          status.innerHTML =
+            'Thanks! Please also reach us at <a href="mailto:hello@tszuk.com">hello@tszuk.com</a>.';
+          status.className = 'contact-form__status contact-form__status--success';
+          form.reset();
         } else {
-          status.textContent = data.error || 'Something went wrong. Please try again.';
+          // error — retain entered values, offer mailto fallback.
+          status.innerHTML =
+            'Your message could not be sent. Please email us at <a href="mailto:hello@tszuk.com">hello@tszuk.com</a>.';
           status.className = 'contact-form__status contact-form__status--error';
         }
       } catch {
-        status.textContent = 'Something went wrong. Please try again.';
+        status.innerHTML =
+          'Your message could not be sent. Please email us at <a href="mailto:hello@tszuk.com">hello@tszuk.com</a>.';
         status.className = 'contact-form__status contact-form__status--error';
       } finally {
         submitBtn.disabled = false;
@@ -113,6 +169,8 @@
       }
     });
   }
+
+  document.addEventListener('astro:page-load', initContactForm);
 </script>
 
 <style>
@@ -132,7 +190,7 @@
   .contact-form__label {
     font-size: 0.85rem;
     font-weight: var(--font-weight-bold);
-    color: var(--color-white);
+    color: var(--color-text);
     letter-spacing: 0.05em;
     text-transform: uppercase;
   }
@@ -140,11 +198,11 @@
   .contact-form__input {
     background: transparent;
     border: none;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+    border-bottom: 1px solid var(--color-divider);
     padding: 0.75rem 0;
     font-family: var(--font-family);
     font-size: 1rem;
-    color: var(--color-white);
+    color: var(--color-text);
     transition: border-color var(--duration-hover) var(--easing);
   }
 
@@ -156,6 +214,13 @@
   .contact-form__textarea {
     resize: vertical;
     min-height: 120px;
+  }
+
+  .contact-form__error {
+    font-size: 0.8rem;
+    color: var(--color-error);
+    min-height: 1em;
+    margin: 0;
   }
 
   .contact-form__fieldset {
@@ -176,11 +241,11 @@
     align-items: center;
     gap: 0.4rem;
     font-size: 0.9rem;
-    color: rgba(255, 255, 255, 0.8);
+    color: var(--color-muted);
     cursor: pointer;
   }
 
-  .contact-form__radio input[type="radio"] {
+  .contact-form__radio input[type='radio'] {
     accent-color: var(--color-accent);
   }
 
@@ -188,7 +253,7 @@
     align-self: flex-start;
     padding: 0.875rem 2rem;
     background-color: var(--color-accent);
-    color: var(--color-dark);
+    color: var(--color-surface);
     font-weight: var(--font-weight-bold);
     font-size: 0.9rem;
     letter-spacing: 0.05em;
@@ -199,7 +264,7 @@
   }
 
   .contact-form__submit:hover {
-    background-color: #9dcdb4;
+    background-color: var(--color-accent-hover);
     transform: translateY(-1px);
   }
 
@@ -209,9 +274,25 @@
     transform: none;
   }
 
+  .contact-form__fallback {
+    font-size: 0.9rem;
+    color: var(--color-muted);
+    margin: 0;
+  }
+
+  .contact-form__fallback a {
+    color: var(--color-accent);
+    text-decoration: underline;
+  }
+
   .contact-form__status {
     font-size: 0.9rem;
     min-height: 1.4em;
+  }
+
+  .contact-form__status a {
+    color: inherit;
+    text-decoration: underline;
   }
 
   .contact-form__status--success {
@@ -219,6 +300,12 @@
   }
 
   .contact-form__status--error {
-    color: #e57373;
+    color: var(--color-error);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .contact-form__submit:hover {
+      transform: none;
+    }
   }
 </style>

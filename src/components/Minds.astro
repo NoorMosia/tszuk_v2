@@ -2,10 +2,32 @@
 import { Image } from 'astro:assets';
 import zukisa from '../assets/Zukisa.png';
 import tshepo from '../assets/tshepo.png';
+
+interface Props {
+  /** When true, renders expanded biography prose alongside each founder. */
+  expanded?: boolean;
+  /** Heading level/text override for the section title. */
+  title?: string;
+}
+
+const { expanded = false, title = 'Behind the Brand' } = Astro.props;
+
+const zukisaBio = [
+  'Zukisa leads the creative heart of tszuk. She treats every brand as a feeling first and a look second — the sense someone should carry away long after they have closed the tab or left the room.',
+  'Her instinct is for restraint: knowing what to leave out so the things that matter land harder. It is the reason tszuk brands feel considered rather than decorated.',
+];
+
+const tshepoBio = [
+  'Tshepo makes the vision hold together. He builds the systems and experiences that carry a brand across every touchpoint, so the polish you feel on the surface is matched by something solid underneath.',
+  'He is happiest where design meets logic — turning a beautiful idea into something that actually works, quietly and reliably, for the people who use it.',
+];
 ---
 
-<section class="minds scroll-reveal" aria-label="The minds behind tszuk">
-  <h2 class="minds__title">Behind the Brand</h2>
+<section
+  class:list={['minds scroll-reveal', { 'minds--expanded': expanded }]}
+  aria-label="The minds behind tszuk"
+>
+  <h2 class="minds__title">{title}</h2>
   <div class="minds__grid">
     <div class="minds__person">
       <div class="minds__portrait-wrapper">
@@ -25,6 +47,15 @@ import tshepo from '../assets/tshepo.png';
       <h3 class="minds__name">Zukisa</h3>
       <p class="minds__role">Co-Founder & Creative Director</p>
       <p class="minds__qual">Bachelor in Design & Creative Direction</p>
+      {
+        expanded && (
+          <div class="minds__bio">
+            {zukisaBio.map((para) => (
+              <p>{para}</p>
+            ))}
+          </div>
+        )
+      }
     </div>
     <div class="minds__person">
       <div class="minds__portrait-wrapper">
@@ -44,28 +75,45 @@ import tshepo from '../assets/tshepo.png';
       <h3 class="minds__name">Tshepo</h3>
       <p class="minds__role">Co-Founder & Systems Director</p>
       <p class="minds__qual">BSc Computer Science & Mathematics</p>
+      {
+        expanded && (
+          <div class="minds__bio">
+            {tshepoBio.map((para) => (
+              <p>{para}</p>
+            ))}
+          </div>
+        )
+      }
     </div>
   </div>
 </section>
 
 <script>
-  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function initMinds() {
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const section = document.querySelector('.minds') as HTMLElement | null;
+    if (!section) return;
 
-  if (!prefersReducedMotion) {
-    const section = document.querySelector('.minds') as HTMLElement;
-    if (section) {
-      const observer = new IntersectionObserver(
-        ([entry]) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
-            observer.unobserve(entry.target);
-          }
-        },
-        { threshold: 0.15 }
-      );
-      observer.observe(section);
+    if (prefersReducedMotion) {
+      section.classList.add('visible');
+      return;
     }
+    if (section.dataset.motionInit === 'true') return;
+    section.dataset.motionInit = 'true';
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      },
+      { threshold: 0.15 }
+    );
+    observer.observe(section);
   }
+
+  document.addEventListener('astro:page-load', initMinds);
 </script>
 
 <style>
@@ -129,11 +177,11 @@ import tshepo from '../assets/tshepo.png';
   }
 
   .minds__blob--green {
-    background-color: #88BDA4;
+    background-color: var(--color-accent-soft);
   }
 
   .minds__blob--red {
-    background-color: #C47A7A;
+    background-color: var(--color-accent);
   }
 
   @keyframes blob-morph {
@@ -172,7 +220,7 @@ import tshepo from '../assets/tshepo.png';
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: rgba(26, 35, 30, 0.75);
+    background-color: rgba(42, 33, 27, 0.78);
     border-radius: 50%;
     opacity: 0;
     transform: scale(0.85);
@@ -210,6 +258,25 @@ import tshepo from '../assets/tshepo.png';
   .minds__qual {
     font-size: 0.85rem;
     color: var(--color-muted);
+  }
+
+  .minds__bio {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1.5rem;
+    max-width: 40ch;
+    text-align: left;
+  }
+
+  .minds__bio p {
+    font-size: 1rem;
+    line-height: var(--line-height-body);
+    color: var(--color-text);
+  }
+
+  .minds--expanded .minds__person {
+    text-align: center;
   }
 
   @media (min-width: 768px) {

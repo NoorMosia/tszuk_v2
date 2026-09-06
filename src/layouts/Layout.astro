@@ -1,5 +1,10 @@
 ---
+import { ClientRouter } from 'astro:transitions';
 import SmoothScroll from '../components/SmoothScroll.astro';
+import Nav from '../components/Nav.astro';
+import BrandedLoader from '../components/BrandedLoader.astro';
+import StructuredData from '../components/StructuredData.astro';
+import Footer from '../components/Footer.astro';
 
 interface Props {
   title?: string;
@@ -27,7 +32,7 @@ const ogImageUrl = new URL(image, siteUrl).href;
     <meta name="color-scheme" content="only light" />
     <meta name="description" content={description} />
     <meta name="author" content="tszuk" />
-    <meta name="theme-color" content="#c1ffe2" />
+    <meta name="theme-color" content="#FAF6F1" />
     <link rel="canonical" href={canonicalURL.href} />
 
     <!-- Open Graph -->
@@ -66,16 +71,52 @@ const ogImageUrl = new URL(image, siteUrl).href;
 
     <title>{title}</title>
 
+    <ClientRouter />
+    <StructuredData scope="site" />
+
     <!-- Remove no-js class immediately -->
     <script is:inline>
       document.documentElement.classList.remove('no-js');
     </script>
   </head>
   <body>
-    <SmoothScroll />
-    <slot />
+    <SmoothScroll transition:persist="smooth-scroll" />
+    <BrandedLoader transition:persist />
+    <header class="site-header" transition:persist>
+      <Nav />
+    </header>
+    <main id="main">
+      <slot />
+    </main>
+    <Footer />
+
+    <script>
+      // Reveal safety net (Req 10.7): if any motion init fails, ensure no
+      // scroll-reveal element is ever left hidden. Runs after each navigation.
+      function revealSafetyNet() {
+        window.setTimeout(() => {
+          document
+            .querySelectorAll('.scroll-reveal:not(.visible)')
+            .forEach((el) => el.classList.add('visible'));
+        }, 1200);
+      }
+      document.addEventListener('astro:page-load', revealSafetyNet);
+    </script>
   </body>
 </html>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 150;
+  }
+
+  main {
+    position: relative;
+    z-index: 1;
+  }
+</style>
 
 <style is:global>
   @import '../styles/global.css';
