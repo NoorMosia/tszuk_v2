@@ -8,9 +8,12 @@ interface Props {
   expanded?: boolean;
   /** Heading level/text override for the section title. */
   title?: string;
+  /** Render the component's own title. Set false when the page supplies one. */
+  showTitle?: boolean;
 }
 
-const { expanded = false, title = 'Behind the Brand' } = Astro.props;
+const { expanded = false, title = 'Behind the Brand', showTitle = true } =
+  Astro.props;
 
 const zukisaBio = [
   'Zukisa leads the creative heart of tszuk. She treats every brand as a feeling first and a look second, the sense someone should carry away long after they have closed the tab or left the room.',
@@ -27,7 +30,7 @@ const tshepoBio = [
   class:list={['minds scroll-reveal', { 'minds--expanded': expanded }]}
   aria-label="The minds behind tszuk"
 >
-  <h2 class="minds__title">{title}</h2>
+  {showTitle && <h2 class="minds__title">{title}</h2>}
   <div class="minds__grid">
     <div class="minds__person">
       <div class="minds__portrait-wrapper">
@@ -246,13 +249,13 @@ const tshepoBio = [
   .minds__name {
     font-size: 1.5rem;
     font-weight: var(--font-weight-bold);
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.75rem;
   }
 
   .minds__role {
     font-size: 0.95rem;
     color: var(--color-muted);
-    margin-bottom: 0.25rem;
+    margin-bottom: 1rem;
   }
 
   .minds__qual {

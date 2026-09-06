@@ -1,112 +1,91 @@
 ---
+/**
+ * Hero — brutalist grid opener (warm brutalist x swiss).
+ *
+ * Big edge-to-edge headline with a label, a supporting line, and a facts
+ * column, aligned to the 12-column grid. Replaces the 3D scroll cover; this is
+ * plain HTML/CSS with no scroll hijacking, so it works with JS off.
+ */
 ---
 
-<section class="hero scroll-reveal" aria-label="Brand manifesto">
-  <div class="hero__content">
-    <p class="hero__text">
-      tszuk is a branding studio collaborating with
-      <span class="highlight"> companies</span> and
-      <span class="highlight"> personalities</span> to build
-      <span class="highlight"> identities that resonate</span>.
-    </p>
+<section class="hero bleed grid-12" aria-label="tszuk, a brand that builds">
+  <h1 class="hero__title">Brand that <span>builds</span></h1>
+  <p class="hero__sub">We build identities that resonate. For companies and personalities.</p>
+  <div class="hero__facts">
+    <div><span>Founded</span><b>2026</b></div>
+    <div><span>Based</span><b>Gqeberha, ZA</b></div>
+    <div><span>Clients</span><b>Companies + Personalities</b></div>
   </div>
 </section>
-<script>
-  function initHero() {
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const hero = document.querySelector('.hero') as HTMLElement | null;
-    if (!hero) return;
-
-    if (prefersReducedMotion) {
-      hero.classList.add('visible');
-      document.querySelectorAll('.highlight').forEach((s) =>
-        s.classList.add('highlight--active')
-      );
-      return;
-    }
-    if (hero.dataset.motionInit === 'true') return;
-    hero.dataset.motionInit = 'true';
-
-    // Scroll-reveal for the section (one-shot)
-    const sectionObserver = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('visible');
-          sectionObserver.unobserve(entry.target);
-        }
-      },
-      { threshold: 0.15 }
-    );
-    sectionObserver.observe(hero);
-
-    // Highlight effect per span (toggle, not one-shot)
-    const highlights = document.querySelectorAll('.highlight');
-    const highlightObserver = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          entry.target.classList.toggle('highlight--active', entry.isIntersecting);
-        });
-      },
-      { threshold: 0.5 }
-    );
-    highlights.forEach((span) => highlightObserver.observe(span));
-  }
-
-  document.addEventListener('astro:page-load', initHero);
-</script>
 
 <style>
   .hero {
-    display: flex;
-    align-items: center;
-    justify-content: center;
     min-height: 100vh;
-    padding: var(--section-padding-mobile) 1.5rem;
-    background-color: transparent;
-    opacity: 0;
-    transform: translateY(20px);
-    transition:
-      opacity var(--duration-reveal) var(--easing),
-      transform var(--duration-reveal) var(--easing);
+    padding-block: clamp(3rem, 12vh, 9rem);
+    border-bottom: var(--rule-heavy) solid var(--color-text);
+    align-content: center;
+    align-items: start;
   }
 
-  .hero.visible {
-    opacity: 1;
-    transform: translateY(0);
-    background-color: var(--color-surface);
-    margin-top: -231px;
-  }
-
-  .hero__content {
-    max-width: var(--manifesto-max-width);
-    text-align: center;
-  }
-
-  .hero__text {
-    font-size: clamp(1.25rem, 3vw, 1.75rem);
-    font-weight: var(--font-weight-regular);
-    line-height: var(--line-height-body);
+  .hero__label {
+    grid-column: 1 / 5;
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: var(--font-weight-bold);
+    letter-spacing: -0.02em;
     color: var(--color-text);
   }
 
-  .highlight {
+  .hero__title {
+    grid-column: 1 / 11;
+    font-weight: var(--font-weight-bold);
+    font-size: clamp(3rem, 12vw, 9.5rem);
+    line-height: 0.86;
+    letter-spacing: -0.04em;
+    text-transform: uppercase;
+  }
+
+  .hero__title span {
+    color: var(--color-accent);
+  }
+
+  .hero__sub {
+    grid-column: 1 / 6;
+    margin-top: 2rem;
     color: var(--color-muted);
-    transition: color var(--duration-highlight) var(--easing);
+    font-size: 1.05rem;
+    line-height: 1.55;
   }
 
-  .highlight--active {
+  .hero__facts {
+    grid-column: 9 / 13;
+    align-self: end;
+    margin-top: 2rem;
+    font-size: 0.8rem;
+  }
+
+  .hero__facts div {
+    display: flex;
+    justify-content: space-between;
+    border-top: var(--rule-hair) solid var(--color-divider);
+    padding: 0.5rem 0;
+  }
+
+  .hero__facts b {
+    font-weight: var(--font-weight-regular);
     color: var(--color-text);
   }
 
-  /* Reduced motion: show everything immediately */
-  @media (prefers-reduced-motion: reduce) {
-    .hero {
-      opacity: 1;
-      transform: none;
-    }
+  .hero__facts span {
+    color: var(--color-muted);
+  }
 
-    .highlight {
-      color: var(--color-text);
+  @media (max-width: 760px) {
+    .hero__title,
+    .hero__sub,
+    .hero__label,
+    .hero__facts {
+      grid-column: 1 / 13;
     }
   }
 </style>

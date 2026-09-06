@@ -1,7 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
-import Cover from '../components/Cover.astro';
 import Hero from '../components/Hero.astro';
 import BusinessRow from '../components/BusinessRow.astro';
 import WorkSection from '../components/WorkSection.astro';
@@ -9,16 +8,25 @@ import ProcessSection from '../components/ProcessSection.astro';
 import FaqSection from '../components/FaqSection.astro';
 import ContactForm from '../components/ContactForm.astro';
 import StructuredData from '../components/StructuredData.astro';
-import { FOUNDERS } from '../lib/site';
+import Minds from '../components/Minds.astro';
+
+import type { CollectionEntry } from 'astro:content';
 
 const caseStudies = await getCollection('caseStudies');
-const businesses = caseStudies.filter((e) => e.data.group === 'business');
-const personalities = caseStudies.filter((e) => e.data.group === 'personality');
+const byOrder = (
+  a: CollectionEntry<'caseStudies'>,
+  b: CollectionEntry<'caseStudies'>
+) => a.data.order - b.data.order;
+const businesses = caseStudies
+  .filter((e) => e.data.group === 'business')
+  .sort(byOrder);
+const personalities = caseStudies
+  .filter((e) => e.data.group === 'personality')
+  .sort(byOrder);
 ---
 
 <Layout title="tszuk | a brand that builds">
   <StructuredData scope="faq" />
-  <Cover />
   <div class="home">
     <Hero />
 
@@ -26,7 +34,7 @@ const personalities = caseStudies.filter((e) => e.data.group === 'personality');
       businesses.length > 0 && (
         <section class="home-work bleed" aria-labelledby="home-businesses">
           <div class="home-work__header">
-            <h2 class="home-work__heading" id="home-businesses">Businesses</h2>
+            <h2 class="home-work__heading" id="home-businesses">Clientele</h2>
             <a class="home-work__view-all" href="/work/businesses">
               View all <span aria-hidden="true">→</span>
             </a>
@@ -42,37 +50,50 @@ const personalities = caseStudies.filter((e) => e.data.group === 'personality');
 
     {
       personalities.length > 0 && (
-        <WorkSection
-          heading="Personalities"
-          viewAllHref="/work/personalities"
-          entries={personalities}
-        />
+        <section class="home-section bleed" aria-labelledby="home-personalities">
+          <div class="home-section__header">
+            <h2 class="home-section__heading" id="home-personalities">Personalities</h2>
+            <a class="home-section__view-all" href="/work/personalities">
+              View all <span aria-hidden="true">→</span>
+            </a>
+          </div>
+          <WorkSection
+            heading="Personalities"
+            viewAllHref="/work/personalities"
+            entries={personalities}
+            fullDescription
+            showScope={false}
+            headless
+          />
+        </section>
       )
     }
 
-    <div class="home-process bleed">
-      <ProcessSection summary />
-    </div>
-
-    <section class="home-brand bleed scroll-reveal" aria-labelledby="home-brand">
-      <p class="home-brand__eyebrow">Behind the brand</p>
-      <h2 class="home-brand__title" id="home-brand">Two minds, one studio</h2>
-      <p class="home-brand__lead measure">
-        tszuk is {FOUNDERS.map((f) => f.name).join(' and ')}, a creative director and a
-        systems director building brands that feel considered on the surface and hold
-        together underneath.
-      </p>
-      <a class="home-brand__link" href="/founders">
-        Meet the founders <span aria-hidden="true">→</span>
-      </a>
+    <section class="home-section bleed" aria-labelledby="home-process">
+      <div class="home-section__header">
+        <h2 class="home-section__heading" id="home-process">How We Work</h2>
+      </div>
+      <ProcessSection summary showHeading={false} />
     </section>
 
-    <div class="home-faq bleed">
-      <FaqSection />
-    </div>
+    <section class="home-section bleed" aria-labelledby="home-brand">
+      <div class="home-section__header">
+        <h2 class="home-section__heading" id="home-brand">Behind the Brand</h2>
+      </div>
+      <Minds showTitle={false} />
+    </section>
 
-    <section class="home-contact bleed" aria-labelledby="home-contact">
-      <h2 class="home-contact__title" id="home-contact">Start a Conversation</h2>
+    <section class="home-section bleed" aria-labelledby="home-faq">
+      <div class="home-section__header">
+        <h2 class="home-section__heading" id="home-faq">Common Questions</h2>
+      </div>
+      <FaqSection showHeading={false} />
+    </section>
+
+    <section class="home-section home-section--last bleed" aria-labelledby="home-contact">
+      <div class="home-section__header">
+        <h2 class="home-section__heading" id="home-contact">Start a Conversation</h2>
+      </div>
       <p class="home-contact__lead measure">
         Leave your email and we will reach out. No long forms, no pressure.
       </p>
@@ -128,42 +149,78 @@ const personalities = caseStudies.filter((e) => e.data.group === 'personality');
     background-color: var(--color-bg);
   }
 
-  .home-work {
+  /* Shared section pattern: identical padding, heavy divider, and heading
+     typography for every landing section (Clientele is the reference). */
+  .home-work,
+  .home-section {
     padding-block: clamp(3rem, 8vw, 6rem);
+    border-bottom: var(--rule-heavy) solid var(--color-text);
   }
 
-  .home-work__header {
+  /* Last section carries no divider (footer follows). */
+  .home-section--last {
+    border-bottom: none;
+  }
+
+  .home-work__header,
+  .home-section__header {
     display: flex;
     align-items: baseline;
     justify-content: space-between;
     gap: 1rem;
-    margin-bottom: 1rem;
+    margin-bottom: clamp(2rem, 4vw, 3rem);
   }
 
-  .home-work__heading {
+  .home-work__heading,
+  .home-section__heading {
     font-size: clamp(1.75rem, 5vw, 3rem);
     font-weight: var(--font-weight-bold);
     text-transform: uppercase;
     letter-spacing: -0.02em;
   }
 
-  .home-work__view-all {
+  .home-work__view-all,
+  .home-section__view-all {
     font-size: 0.9rem;
     color: var(--color-accent);
     white-space: nowrap;
   }
 
-  .home-work__view-all span {
+  .home-work__view-all span,
+  .home-section__view-all span {
     display: inline-block;
     transition: transform var(--duration-hover) var(--easing);
   }
 
-  .home-work__view-all:hover span {
+  .home-work__view-all:hover span,
+  .home-section__view-all:hover span {
     transform: translateX(4px);
   }
 
-  .home-brand {
-    padding-block: clamp(3rem, 8vw, 6rem);
+  /* No line directly under the Clientele heading: drop the first row's top border. */
+  .home-work__rows :global(.brow:first-child) {
+    border-top: none;
+  }
+
+  /* Embedded child sections: the .home-section wrapper owns padding, so the
+     component's own vertical padding is removed to avoid doubling. */
+  .home-section :global(.process),
+  .home-section :global(.faq) {
+    padding-block: 0;
+  }
+
+  /* Minds and the headless Personalities grid: the .home-section wrapper owns
+     padding/width, so drop the component's own padding. Matching padding-top
+     (not margin, so it can't collapse) gives both sections identical vertical
+     spacing below their heading. */
+  .home-section :global(.minds),
+  .home-section :global(.work-section--headless) {
+    padding: 0;
+    padding-top: clamp(2rem, 4vw, 3rem);
+  }
+
+  /* Behind-the-brand section reveal. */
+  .home-section.scroll-reveal {
     opacity: 0;
     transform: translateY(20px);
     transition:
@@ -171,63 +228,9 @@ const personalities = caseStudies.filter((e) => e.data.group === 'personality');
       transform var(--duration-reveal) var(--easing);
   }
 
-  .home-brand.visible {
+  .home-section.scroll-reveal.visible {
     opacity: 1;
     transform: translateY(0);
-  }
-
-  .home-brand__eyebrow {
-    font-size: 0.85rem;
-    letter-spacing: var(--letter-spacing-subtitle);
-    text-transform: uppercase;
-    color: var(--color-muted);
-    margin-bottom: 1rem;
-  }
-
-  .home-brand__title {
-    font-size: clamp(2rem, 6vw, 4rem);
-    font-weight: var(--font-weight-bold);
-    text-transform: uppercase;
-    letter-spacing: -0.02em;
-    line-height: 1;
-    margin-bottom: 1.5rem;
-  }
-
-  .home-brand__lead {
-    font-size: clamp(1.1rem, 2.5vw, 1.4rem);
-    font-weight: var(--font-weight-light);
-    line-height: 1.5;
-    color: var(--color-muted);
-    margin-bottom: 1.5rem;
-  }
-
-  .home-brand__link {
-    display: inline-block;
-    font-size: 0.95rem;
-    color: var(--color-accent);
-    border-bottom: 1px solid var(--color-accent);
-    padding-bottom: 2px;
-  }
-
-  .home-brand__link span {
-    display: inline-block;
-    transition: transform var(--duration-hover) var(--easing);
-  }
-
-  .home-brand__link:hover span {
-    transform: translateX(4px);
-  }
-
-  .home-contact {
-    padding-block: clamp(3rem, 8vw, 6rem);
-  }
-
-  .home-contact__title {
-    font-size: 0.85rem;
-    letter-spacing: var(--letter-spacing-subtitle);
-    text-transform: uppercase;
-    color: var(--color-muted);
-    margin-bottom: 2rem;
   }
 
   .home-contact__lead {
@@ -238,14 +241,14 @@ const personalities = caseStudies.filter((e) => e.data.group === 'personality');
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .home-brand {
+    .home-section.scroll-reveal {
       opacity: 1;
       transform: none;
       transition: none;
     }
 
     .home-work__view-all span,
-    .home-brand__link span {
+    .home-section__view-all span {
       transition: none;
     }
   }

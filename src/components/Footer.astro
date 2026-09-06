@@ -27,6 +27,12 @@ import { CONTACT_EMAIL, LOCATION, SOCIAL_LINKS } from '../lib/site';
             <path d="M8 11v5M8 8v.01M12 16v-5c0-1.5 1-2 2-2s2 .5 2 2v5"/>
           </svg>
         </a>
+        <a href={SOCIAL_LINKS.substack} target="_blank" rel="noopener noreferrer" class="footer__social-link" aria-label="Substack">
+          <svg width="28" height="28" viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="2" y="2" width="20" height="20" rx="5" ry="5" fill="none" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M7 7.5h10V9H7V7.5zm0 3h10V12H7v-1.5zm0 3 5 2.6 5-2.6v3.1l-5-2.6-5 2.6v-3.1z" fill="currentColor"/>
+          </svg>
+        </a>
       </div>
       <p class="footer__copy">&copy; 2026 tszuk. All rights reserved.</p>
     </div>
@@ -59,7 +65,7 @@ import { CONTACT_EMAIL, LOCATION, SOCIAL_LINKS } from '../lib/site';
     display: inline-block;
     padding: 0.875rem 2rem;
     background-color: var(--color-accent);
-    color: var(--color-dark);
+    color: var(--color-white);
     font-weight: var(--font-weight-bold);
     font-size: 0.9rem;
     letter-spacing: 0.05em;

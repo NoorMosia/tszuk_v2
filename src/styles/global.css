@@ -19,7 +19,7 @@
 
   /* Typography */
   --font-family: 'Inter', sans-serif;
-  --font-display: 'Space Grotesk', 'Inter', system-ui, sans-serif; /* headings & client names */
+  --font-display: 'Inter', sans-serif; /* headings match the tszuk wordmark */
   --font-weight-light: 300;
   --font-weight-regular: 400;
   --font-weight-bold: 700;
@@ -104,8 +104,11 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* === Layout system utilities (v2) === */
+/* Centered content container matching the original tszuk site width. */
 .bleed {
   width: 100%;
+  max-width: var(--content-max-width);
+  margin-inline: auto;
   padding-inline: var(--edge);
 }
 

@@ -20,6 +20,7 @@ const caseStudies = defineCollection({
       // --- Required (Req 4.2) ---
       name: z.string().min(1).max(100),
       group: z.enum(['business', 'personality']), // Req 4.4 — total & binary
+      order: z.number().int().default(999), // display order within a group (lower first)
       description: z.string().min(1).max(300),
       scope: z.array(z.string().min(1)).min(1).max(10), // 1..10 Scope_Pills
       heroImage: image(),

@@ -6,23 +6,42 @@ interface Props {
   heading: 'Businesses' | 'Personalities';
   viewAllHref: string;
   entries: CollectionEntry<'caseStudies'>[];
+  /** Show the full description sentence on cards instead of a truncated line. */
+  fullDescription?: boolean;
+  /** Render scope markers on cards. Defaults to true. */
+  showScope?: boolean;
+  /** Suppress the section's own heading/header (the page supplies one). */
+  headless?: boolean;
 }
 
-const { heading, viewAllHref, entries } = Astro.props;
+const {
+  heading,
+  viewAllHref,
+  entries,
+  fullDescription = false,
+  showScope = true,
+  headless = false,
+} = Astro.props;
 const groupLabel = heading.toLowerCase();
 ---
 
-<section class="work-section" aria-labelledby={`work-${groupLabel}`}>
-  <div class="work-section__header">
-    <h2 class="work-section__heading" id={`work-${groupLabel}`}>{heading}</h2>
-    {
-      entries.length > 0 && (
-        <a class="work-section__view-all" href={viewAllHref}>
-          View all <span aria-hidden="true">→</span>
-        </a>
-      )
-    }
-  </div>
+<section
+  class:list={['work-section', { 'work-section--headless': headless }]}
+  aria-label={headless ? heading : undefined}
+  aria-labelledby={headless ? undefined : `work-${groupLabel}`}
+>
+  {
+    !headless && (
+      <div class="work-section__header">
+        <h2 class="work-section__heading" id={`work-${groupLabel}`}>{heading}</h2>
+        {entries.length > 0 && (
+          <a class="work-section__view-all" href={viewAllHref}>
+            View all <span aria-hidden="true">→</span>
+          </a>
+        )}
+      </div>
+    )
+  }
 
   {
     entries.length === 0 ? (
@@ -39,6 +58,8 @@ const groupLabel = heading.toLowerCase();
             imageAlt={entry.data.heroImageAlt}
             href={`/work/${entry.id}`}
             index={i}
+            fullDescription={fullDescription}
+            showScope={showScope}
           />
         ))}
       </div>
@@ -90,12 +111,18 @@ const groupLabel = heading.toLowerCase();
     margin: 0 auto;
   }
 
+  /* Headless: the parent section owns padding/width; render only the grid. */
+  .work-section--headless {
+    padding: 0;
+    max-width: none;
+  }
+
   .work-section__header {
     display: flex;
     align-items: baseline;
     justify-content: space-between;
     gap: 1rem;
-    margin-bottom: 2.5rem;
+    margin-bottom: clamp(3rem, 6vw, 5rem);
   }
 
   .work-section__heading {

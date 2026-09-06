@@ -11,13 +11,9 @@ import Minds from '../components/Minds.astro';
     <section class="founders__intro bleed" aria-labelledby="founders-intro">
       <p class="founders__eyebrow">The people behind tszuk</p>
       <h1 class="founders__title" id="founders-intro">The Founders</h1>
-      <p class="founders__lead measure">
-        Two people, one studio. A creative director and a systems director who build brands
-        that feel considered on the surface and hold together underneath.
-      </p>
     </section>
 
-    <Minds expanded title="Meet the Studio" />
+    <Minds expanded showTitle={false} />
   </div>
 </Layout>
 
@@ -26,8 +22,14 @@ import Minds from '../components/Minds.astro';
     background-color: var(--color-bg);
   }
 
+  /* The intro already provides the gap above the founders, so drop the Minds
+     component's own top padding. */
+  .founders :global(.minds) {
+    padding-top: 0;
+  }
+
   .founders__intro {
-    padding-block: calc(var(--section-padding-mobile) + 2rem) var(--section-padding-mobile);
+    padding-block: calc(var(--section-padding-mobile) + 2rem) clamp(4rem, 8vw, 6rem);
   }
 
   .founders__eyebrow {
@@ -47,16 +49,9 @@ import Minds from '../components/Minds.astro';
     margin-bottom: 1.75rem;
   }
 
-  .founders__lead {
-    font-size: clamp(1.15rem, 2.5vw, 1.5rem);
-    font-weight: var(--font-weight-light);
-    line-height: 1.5;
-    color: var(--color-muted);
-  }
-
   @media (min-width: 900px) {
     .founders__intro {
-      padding-block: calc(var(--section-padding) + 1rem) var(--section-padding);
+      padding-block: calc(var(--section-padding) + 1rem) clamp(4rem, 8vw, 6rem);
     }
   }
 </style>

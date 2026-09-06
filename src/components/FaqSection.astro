@@ -11,13 +11,20 @@ import { FAQ_ITEMS, type FaqItem } from '../lib/site';
 interface Props {
   items?: FaqItem[];
   heading?: string;
+  /** Render the component's own heading. Set false when the page supplies one. */
+  showHeading?: boolean;
 }
 
-const { items = FAQ_ITEMS, heading = 'Common Questions' } = Astro.props;
+const { items = FAQ_ITEMS, heading = 'Common Questions', showHeading = true } =
+  Astro.props;
 ---
 
-<section class="faq scroll-reveal" aria-labelledby="faq-heading">
-  <h2 class="faq__heading" id="faq-heading">{heading}</h2>
+<section
+  class="faq scroll-reveal"
+  aria-label={showHeading ? undefined : 'Common questions'}
+  aria-labelledby={showHeading ? 'faq-heading' : undefined}
+>
+  {showHeading && <h2 class="faq__heading" id="faq-heading">{heading}</h2>}
   <div class="faq__list">
     {
       items.map((item) => (

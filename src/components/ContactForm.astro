@@ -43,11 +43,6 @@ import { CONTACT_EMAIL } from '../lib/site';
 
   <button type="submit" class="contact-form__submit">Send</button>
 
-  <p class="contact-form__fallback">
-    Prefer email? Reach us any time at
-    <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
-  </p>
-
   <div class="contact-form__status" aria-live="polite"></div>
 </form>
 
@@ -135,10 +130,24 @@ import { CONTACT_EMAIL } from '../lib/site';
 
 <style>
   .contact-form {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    max-width: 500px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem 2rem;
+    width: 100%;
+  }
+
+  /* Wider screens: email and message sit side by side to use the full width,
+     with the button and status spanning below. */
+  @media (min-width: 768px) {
+    .contact-form {
+      grid-template-columns: 1fr 1fr;
+      align-items: start;
+    }
+
+    .contact-form__submit,
+    .contact-form__status {
+      grid-column: 1 / -1;
+    }
   }
 
   .contact-form__field {
@@ -213,17 +222,6 @@ import { CONTACT_EMAIL } from '../lib/site';
     opacity: 0.6;
     cursor: not-allowed;
     transform: none;
-  }
-
-  .contact-form__fallback {
-    font-size: 0.9rem;
-    color: var(--color-muted);
-    margin: 0;
-  }
-
-  .contact-form__fallback a {
-    color: var(--color-accent);
-    text-decoration: underline;
   }
 
   .contact-form__status {

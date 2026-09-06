@@ -32,7 +32,7 @@ function normalize(path: string): string {
 const current = normalize(Astro.url.pathname);
 ---
 
-<nav class="nav nav--solid" aria-label="Primary" data-nav>
+<nav class="nav" aria-label="Primary" data-nav>
   <a href="/" class="nav__brand">tszuk.</a>
   <ul class="nav__list">
     {
@@ -74,8 +74,8 @@ const current = normalize(Astro.url.pathname);
     });
   }
 
-  // Shining toggle: solid near the top, shining (blend mode) once scrolled.
-  // Bound once; the nav persists across view transitions.
+  // Nav background toggle: transparent at the top, solid once scrolled past the
+  // threshold. Bound once; the nav persists across view transitions.
   function initNavShine() {
     const nav = document.querySelector('.nav') as HTMLElement | null;
     if (!nav || nav.dataset.shineBound === 'true') return;
@@ -83,9 +83,10 @@ const current = normalize(Astro.url.pathname);
 
     const TOP_THRESHOLD = 80;
     function sync() {
-      const y = window.scrollY;
-      // Solid at the very top; shining once past the threshold.
-      nav!.classList.toggle('nav--solid', y <= TOP_THRESHOLD);
+      const scrolled = window.scrollY > TOP_THRESHOLD;
+      // Hidden at the very top; eases in and turns solid once scrolled.
+      nav!.classList.toggle('nav--visible', scrolled);
+      nav!.classList.toggle('nav--solid', scrolled);
     }
     sync();
     window.addEventListener('scroll', sync, { passive: true });
@@ -104,24 +105,40 @@ const current = normalize(Astro.url.pathname);
     justify-content: space-between;
     gap: 1.5rem;
     padding: 1rem 1.5rem;
-    /* Default (shining) state: transparent, inverts against content behind it. */
+    /* Top of page: hidden, dark ink (always legible on the light palette). */
     background-color: transparent;
-    mix-blend-mode: difference;
-    transition: background-color var(--duration-hover) var(--easing);
+    border-bottom: 1px solid transparent;
+    /* Hidden until scrolled: slid up and faded out. */
+    opacity: 0;
+    transform: translateY(-100%);
+    pointer-events: none;
+    transition:
+      opacity var(--duration-hover) var(--easing),
+      transform var(--duration-hover) var(--easing),
+      background-color var(--duration-hover) var(--easing),
+      border-color var(--duration-hover) var(--easing);
   }
 
-  /* Shining state uses light ink so difference blending inverts it per section. */
-  .nav:not(.nav--solid) .nav__brand,
-  .nav:not(.nav--solid) .nav__link {
-    color: #ffffff;
+  /* Eased into view once scrolled past the threshold. */
+  .nav--visible {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
   }
 
-  /* Solid state (near top of page, and always on mobile): legible, no blend. */
+  /* No-JS: the hide-until-scroll toggle never runs, so keep the nav visible and
+     usable as plain links (progressive enhancement). */
+  :global(.no-js) .nav {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+  }
+
+  /* Scrolled state: solid blurred background lifts the nav off the content. */
   .nav--solid {
     background-color: color-mix(in srgb, var(--color-bg) 88%, transparent);
     backdrop-filter: blur(10px);
-    border-bottom: 1px solid var(--color-divider);
-    mix-blend-mode: normal;
+    border-bottom-color: var(--color-divider);
   }
 
   .nav__brand {
@@ -163,12 +180,12 @@ const current = normalize(Astro.url.pathname);
     transition: transform var(--duration-hover) var(--easing);
   }
 
-  .nav--solid .nav__link:hover {
+  .nav__link:hover {
     color: var(--color-text);
   }
 
-  .nav--solid .nav__link.is-active {
-    color: var(--color-text);
+  .nav__link.is-active {
+    color: var(--color-accent);
     font-weight: var(--font-weight-bold);
   }
 
@@ -186,22 +203,12 @@ const current = normalize(Astro.url.pathname);
     }
   }
 
-  /* Mobile: always solid, never blend (matches One Room behavior). */
+  /* Mobile: always solid for a clean, legible bar. */
   @media (max-width: 767px) {
-    .nav,
-    .nav:not(.nav--solid) {
+    .nav {
       background-color: color-mix(in srgb, var(--color-bg) 88%, transparent);
       backdrop-filter: blur(10px);
-      border-bottom: 1px solid var(--color-divider);
-      mix-blend-mode: normal;
-    }
-
-    .nav:not(.nav--solid) .nav__brand {
-      color: var(--color-text);
-    }
-
-    .nav:not(.nav--solid) .nav__link {
-      color: var(--color-muted);
+      border-bottom-color: var(--color-divider);
     }
   }
 
