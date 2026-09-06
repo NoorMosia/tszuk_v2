@@ -4,6 +4,7 @@ import { Image } from 'astro:assets';
 import type { GetStaticPaths } from 'astro';
 import Layout from '../../layouts/Layout.astro';
 import StructuredData from '../../components/StructuredData.astro';
+import ScopeMarker from '../../components/ScopeMarker.astro';
 
 export const getStaticPaths = (async () => {
   const entries = await getCollection('caseStudies');
@@ -22,7 +23,7 @@ const groupLabel = data.group === 'business' ? 'Business' : 'Personality';
 const groupHref = data.group === 'business' ? '/work/businesses' : '/work/personalities';
 ---
 
-<Layout title={`${data.name} | tszuk`} description={data.description}>
+<Layout title={`${data.name} | tszuk`} description={data.description} image={data.heroImage.src}>
   <StructuredData scope="case-study" entry={entry} />
 
   <article class="case">
@@ -33,9 +34,7 @@ const groupHref = data.group === 'business' ? '/work/businesses' : '/work/person
       <p class="case__eyebrow">{groupLabel}</p>
       <h1 class="case__name">{data.name}</h1>
       <p class="case__description">{data.description}</p>
-      <ul class="case__scope" aria-label="Scope of work">
-        {data.scope.map((pill) => <li class="case__pill">{pill}</li>)}
-      </ul>
+      <ScopeMarker scope={data.scope} variant="rows" class="case__scope" />
     </header>
 
     <div class="case__hero-image">
@@ -100,7 +99,7 @@ const groupHref = data.group === 'business' ? '/work/businesses' : '/work/person
             "{data.testimonial.quote}"
           </blockquote>
           <figcaption class="case__testimonial-by">
-            — {data.testimonial.attribution}
+            {data.testimonial.attribution}
           </figcaption>
         </figure>
       )
@@ -173,23 +172,9 @@ const groupHref = data.group === 'business' ? '/work/businesses' : '/work/person
   }
 
   .case__scope {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    justify-content: center;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-
-  .case__pill {
-    font-size: 0.75rem;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: var(--color-muted);
-    border: 1px solid var(--color-divider);
-    border-radius: 999px;
-    padding: 0.3rem 0.75rem;
+    text-align: left;
+    max-width: 32rem;
+    margin: 0 auto;
   }
 
   .case__hero-image {

@@ -1,18 +1,26 @@
 ---
 /**
- * Nav — persistent primary navigation.
+ * Nav — persistent primary navigation with a "shining" treatment.
  *
  * Renders plain anchor links (works with JS off). Active state is computed from
  * the normalized pathname so at most one link is active, and exactly one when
  * the path matches a top-level route. Case-study pages (`/work/{slug}`) leave
  * all top-level links inactive. The header persists across View Transitions, so
  * a tiny `astro:page-load` handler recomputes the active link after each swap.
+ *
+ * Shining treatment (v2): once scrolled past the top, the nav drops its solid
+ * background and switches to `mix-blend-mode: difference` with light text, so
+ * the logo and links invert against whatever section scrolls behind them. Near
+ * the very top and at/below the mobile breakpoint it stays solid for legibility
+ * (see media query). A section can force a solid nav by carrying
+ * `data-nav="solid"`, handled by the scroll observer below.
  */
 
 const links = [
   { href: '/', label: 'Home' },
   { href: '/work/businesses', label: 'Businesses' },
   { href: '/work/personalities', label: 'Personalities' },
+  { href: '/founders', label: 'Founders' },
   { href: '/about', label: 'About' },
 ];
 
@@ -24,7 +32,7 @@ function normalize(path: string): string {
 const current = normalize(Astro.url.pathname);
 ---
 
-<nav class="nav" aria-label="Primary">
+<nav class="nav nav--solid" aria-label="Primary" data-nav>
   <a href="/" class="nav__brand">tszuk.</a>
   <ul class="nav__list">
     {
@@ -66,7 +74,27 @@ const current = normalize(Astro.url.pathname);
     });
   }
 
-  document.addEventListener('astro:page-load', updateActiveNav);
+  // Shining toggle: solid near the top, shining (blend mode) once scrolled.
+  // Bound once; the nav persists across view transitions.
+  function initNavShine() {
+    const nav = document.querySelector('.nav') as HTMLElement | null;
+    if (!nav || nav.dataset.shineBound === 'true') return;
+    nav.dataset.shineBound = 'true';
+
+    const TOP_THRESHOLD = 80;
+    function sync() {
+      const y = window.scrollY;
+      // Solid at the very top; shining once past the threshold.
+      nav!.classList.toggle('nav--solid', y <= TOP_THRESHOLD);
+    }
+    sync();
+    window.addEventListener('scroll', sync, { passive: true });
+  }
+
+  document.addEventListener('astro:page-load', () => {
+    updateActiveNav();
+    initNavShine();
+  });
 </script>
 
 <style>
@@ -76,16 +104,33 @@ const current = normalize(Astro.url.pathname);
     justify-content: space-between;
     gap: 1.5rem;
     padding: 1rem 1.5rem;
+    /* Default (shining) state: transparent, inverts against content behind it. */
+    background-color: transparent;
+    mix-blend-mode: difference;
+    transition: background-color var(--duration-hover) var(--easing);
+  }
+
+  /* Shining state uses light ink so difference blending inverts it per section. */
+  .nav:not(.nav--solid) .nav__brand,
+  .nav:not(.nav--solid) .nav__link {
+    color: #ffffff;
+  }
+
+  /* Solid state (near top of page, and always on mobile): legible, no blend. */
+  .nav--solid {
     background-color: color-mix(in srgb, var(--color-bg) 88%, transparent);
     backdrop-filter: blur(10px);
     border-bottom: 1px solid var(--color-divider);
+    mix-blend-mode: normal;
   }
 
   .nav__brand {
+    font-family: var(--font-display);
     font-weight: var(--font-weight-bold);
     font-size: 1.1rem;
     letter-spacing: -0.02em;
     color: var(--color-text);
+    transition: color var(--duration-hover) var(--easing);
   }
 
   .nav__list {
@@ -118,11 +163,11 @@ const current = normalize(Astro.url.pathname);
     transition: transform var(--duration-hover) var(--easing);
   }
 
-  .nav__link:hover {
+  .nav--solid .nav__link:hover {
     color: var(--color-text);
   }
 
-  .nav__link.is-active {
+  .nav--solid .nav__link.is-active {
     color: var(--color-text);
     font-weight: var(--font-weight-bold);
   }
@@ -141,7 +186,28 @@ const current = normalize(Astro.url.pathname);
     }
   }
 
+  /* Mobile: always solid, never blend (matches One Room behavior). */
+  @media (max-width: 767px) {
+    .nav,
+    .nav:not(.nav--solid) {
+      background-color: color-mix(in srgb, var(--color-bg) 88%, transparent);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--color-divider);
+      mix-blend-mode: normal;
+    }
+
+    .nav:not(.nav--solid) .nav__brand {
+      color: var(--color-text);
+    }
+
+    .nav:not(.nav--solid) .nav__link {
+      color: var(--color-muted);
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
+    .nav,
+    .nav__brand,
     .nav__link,
     .nav__link::after {
       transition: none;

@@ -3,9 +3,13 @@ import { getCollection } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
 import Cover from '../components/Cover.astro';
 import Hero from '../components/Hero.astro';
+import BusinessRow from '../components/BusinessRow.astro';
 import WorkSection from '../components/WorkSection.astro';
-import Marquee from '../components/Marquee.astro';
-import Capabilities from '../components/Capabilities.astro';
+import ProcessSection from '../components/ProcessSection.astro';
+import FaqSection from '../components/FaqSection.astro';
+import ContactForm from '../components/ContactForm.astro';
+import StructuredData from '../components/StructuredData.astro';
+import { FOUNDERS } from '../lib/site';
 
 const caseStudies = await getCollection('caseStudies');
 const businesses = caseStudies.filter((e) => e.data.group === 'business');
@@ -13,34 +17,109 @@ const personalities = caseStudies.filter((e) => e.data.group === 'personality');
 ---
 
 <Layout title="tszuk | a brand that builds">
+  <StructuredData scope="faq" />
   <Cover />
   <div class="home">
     <Hero />
 
-    <WorkSection
-      heading="Businesses"
-      viewAllHref="/work/businesses"
-      entries={businesses}
-    />
-    <WorkSection
-      heading="Personalities"
-      viewAllHref="/work/personalities"
-      entries={personalities}
-    />
+    {
+      businesses.length > 0 && (
+        <section class="home-work bleed" aria-labelledby="home-businesses">
+          <div class="home-work__header">
+            <h2 class="home-work__heading" id="home-businesses">Businesses</h2>
+            <a class="home-work__view-all" href="/work/businesses">
+              View all <span aria-hidden="true">→</span>
+            </a>
+          </div>
+          <div class="home-work__rows">
+            {businesses.map((entry, i) => (
+              <BusinessRow entry={entry} index={i} />
+            ))}
+          </div>
+        </section>
+      )
+    }
 
-    <Marquee />
-    <Capabilities />
+    {
+      personalities.length > 0 && (
+        <WorkSection
+          heading="Personalities"
+          viewAllHref="/work/personalities"
+          entries={personalities}
+        />
+      )
+    }
 
-    <a class="about-teaser" href="/about">
-      <p class="about-teaser__eyebrow">About tszuk</p>
-      <p class="about-teaser__lead">
-        A branding studio in Port Elizabeth building identities that resonate —
-        for companies and personalities alike.
+    <div class="home-process bleed">
+      <ProcessSection summary />
+    </div>
+
+    <section class="home-brand bleed scroll-reveal" aria-labelledby="home-brand">
+      <p class="home-brand__eyebrow">Behind the brand</p>
+      <h2 class="home-brand__title" id="home-brand">Two minds, one studio</h2>
+      <p class="home-brand__lead measure">
+        tszuk is {FOUNDERS.map((f) => f.name).join(' and ')}, a creative director and a
+        systems director building brands that feel considered on the surface and hold
+        together underneath.
       </p>
-      <span class="about-teaser__cta">Meet the studio <span aria-hidden="true">→</span></span>
-    </a>
+      <a class="home-brand__link" href="/founders">
+        Meet the founders <span aria-hidden="true">→</span>
+      </a>
+    </section>
+
+    <div class="home-faq bleed">
+      <FaqSection />
+    </div>
+
+    <section class="home-contact bleed" aria-labelledby="home-contact">
+      <h2 class="home-contact__title" id="home-contact">Start a Conversation</h2>
+      <p class="home-contact__lead measure">
+        Leave your email and we will reach out. No long forms, no pressure.
+      </p>
+      <ContactForm />
+    </section>
   </div>
 </Layout>
+
+<script>
+  // Reveal any .scroll-reveal blocks on the home page (business rows, brand
+  // teaser, process, faq). Idempotent and reduced-motion aware; the layout
+  // safety net still guarantees visibility if this fails.
+  function initHomeReveal() {
+    const prefersReducedMotion = window.matchMedia(
+      '(prefers-reduced-motion: reduce)'
+    ).matches;
+    const els = document.querySelectorAll<HTMLElement>(
+      '.home .scroll-reveal:not(.visible)'
+    );
+    if (els.length === 0) return;
+
+    if (prefersReducedMotion) {
+      els.forEach((el) => el.classList.add('visible'));
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.12 }
+    );
+
+    els.forEach((el) => {
+      if (el.dataset.revealInit === 'true') return;
+      el.dataset.revealInit = 'true';
+      observer.observe(el);
+    });
+  }
+
+  document.addEventListener('astro:page-load', initHomeReveal);
+</script>
 
 <style>
   .home {
@@ -49,54 +128,124 @@ const personalities = caseStudies.filter((e) => e.data.group === 'personality');
     background-color: var(--color-bg);
   }
 
-  .about-teaser {
-    display: block;
-    max-width: var(--content-max-width);
-    margin: 0 auto;
-    padding: var(--section-padding-mobile) 1.5rem;
-    color: var(--color-text);
-    text-align: center;
+  .home-work {
+    padding-block: clamp(3rem, 8vw, 6rem);
   }
 
-  .about-teaser__eyebrow {
-    font-size: 0.85rem;
-    letter-spacing: var(--letter-spacing-subtitle);
+  .home-work__header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .home-work__heading {
+    font-size: clamp(1.75rem, 5vw, 3rem);
+    font-weight: var(--font-weight-bold);
     text-transform: uppercase;
-    color: var(--color-muted);
-    margin-bottom: 1.25rem;
+    letter-spacing: -0.02em;
   }
 
-  .about-teaser__lead {
-    font-size: clamp(1.35rem, 3.5vw, 2rem);
-    font-weight: var(--font-weight-light);
-    line-height: 1.4;
-    max-width: var(--manifesto-max-width);
-    margin: 0 auto 1.5rem;
-  }
-
-  .about-teaser__cta {
-    display: inline-block;
-    font-size: 0.95rem;
+  .home-work__view-all {
+    font-size: 0.9rem;
     color: var(--color-accent);
+    white-space: nowrap;
   }
 
-  .about-teaser__cta span {
+  .home-work__view-all span {
     display: inline-block;
     transition: transform var(--duration-hover) var(--easing);
   }
 
-  .about-teaser:hover .about-teaser__cta span {
+  .home-work__view-all:hover span {
     transform: translateX(4px);
   }
 
-  @media (min-width: 900px) {
-    .about-teaser {
-      padding: var(--section-padding) 2.5rem;
-    }
+  .home-brand {
+    padding-block: clamp(3rem, 8vw, 6rem);
+    opacity: 0;
+    transform: translateY(20px);
+    transition:
+      opacity var(--duration-reveal) var(--easing),
+      transform var(--duration-reveal) var(--easing);
+  }
+
+  .home-brand.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .home-brand__eyebrow {
+    font-size: 0.85rem;
+    letter-spacing: var(--letter-spacing-subtitle);
+    text-transform: uppercase;
+    color: var(--color-muted);
+    margin-bottom: 1rem;
+  }
+
+  .home-brand__title {
+    font-size: clamp(2rem, 6vw, 4rem);
+    font-weight: var(--font-weight-bold);
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    line-height: 1;
+    margin-bottom: 1.5rem;
+  }
+
+  .home-brand__lead {
+    font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+    font-weight: var(--font-weight-light);
+    line-height: 1.5;
+    color: var(--color-muted);
+    margin-bottom: 1.5rem;
+  }
+
+  .home-brand__link {
+    display: inline-block;
+    font-size: 0.95rem;
+    color: var(--color-accent);
+    border-bottom: 1px solid var(--color-accent);
+    padding-bottom: 2px;
+  }
+
+  .home-brand__link span {
+    display: inline-block;
+    transition: transform var(--duration-hover) var(--easing);
+  }
+
+  .home-brand__link:hover span {
+    transform: translateX(4px);
+  }
+
+  .home-contact {
+    padding-block: clamp(3rem, 8vw, 6rem);
+  }
+
+  .home-contact__title {
+    font-size: 0.85rem;
+    letter-spacing: var(--letter-spacing-subtitle);
+    text-transform: uppercase;
+    color: var(--color-muted);
+    margin-bottom: 2rem;
+  }
+
+  .home-contact__lead {
+    font-size: 1.05rem;
+    line-height: var(--line-height-body);
+    color: var(--color-text);
+    margin-bottom: 2rem;
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .about-teaser__cta span {
+    .home-brand {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+
+    .home-work__view-all span,
+    .home-brand__link span {
       transition: none;
     }
   }

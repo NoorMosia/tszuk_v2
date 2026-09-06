@@ -1,0 +1,104 @@
+---
+/**
+ * ScopeMarker — modern replacement for filled scope pills.
+ *
+ * `inline` (default): scope values as middot-separated text with no filled
+ * background, for cards and summaries.
+ * `rows`: a "Scope" label paired with the values as a key-value row, for the
+ * case study page.
+ *
+ * Values derive from the entry's scope array; there is no pill styling anywhere.
+ */
+interface Props {
+  scope: string[];
+  variant?: 'inline' | 'rows';
+  align?: 'start' | 'center';
+  class?: string;
+}
+
+const { scope, variant = 'inline', align = 'start', class: className } = Astro.props;
+---
+
+{
+  variant === 'inline' ? (
+    <p
+      class:list={['scope', 'scope--inline', `scope--${align}`, className]}
+      aria-label="Scope of work"
+    >
+      {scope.map((item, i) => (
+        <>
+          {i > 0 && <span class="scope__sep" aria-hidden="true">&middot;</span>}
+          <span class="scope__item">{item}</span>
+        </>
+      ))}
+    </p>
+  ) : (
+    <div class:list={['scope', 'scope--rows', className]}>
+      <span class="scope__label">Scope</span>
+      <p class="scope__values">
+        {scope.map((item, i) => (
+          <>
+            {i > 0 && <span class="scope__sep" aria-hidden="true">&middot;</span>}
+            <span class="scope__item">{item}</span>
+          </>
+        ))}
+      </p>
+    </div>
+  )
+}
+
+<style>
+  .scope {
+    margin: 0;
+    padding: 0;
+  }
+
+  .scope__item {
+    font-size: 0.8rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+
+  .scope__sep {
+    color: var(--color-accent);
+    margin: 0 0.5rem;
+  }
+
+  /* Inline: middot-separated run of text. */
+  .scope--inline {
+    display: block;
+    line-height: 1.7;
+  }
+
+  .scope--center {
+    text-align: center;
+  }
+
+  .scope--start {
+    text-align: left;
+  }
+
+  /* Rows: "Scope" label + values, reads like a spec sheet. */
+  .scope--rows {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.75rem 1.25rem;
+    align-items: baseline;
+    border-top: var(--rule-hair) solid var(--color-divider);
+    border-bottom: var(--rule-hair) solid var(--color-divider);
+    padding: 1rem 0;
+  }
+
+  .scope__label {
+    font-size: 0.75rem;
+    letter-spacing: var(--letter-spacing-subtitle);
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+
+  .scope__values {
+    margin: 0;
+    padding: 0;
+  }
+</style>

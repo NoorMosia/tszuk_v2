@@ -1,86 +1,58 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import Minds from '../components/Minds.astro';
-import Capabilities from '../components/Capabilities.astro';
+import ProcessSection from '../components/ProcessSection.astro';
+import FaqSection from '../components/FaqSection.astro';
 import ContactForm from '../components/ContactForm.astro';
-
-const faqs = [
-  {
-    q: 'Who does tszuk work with?',
-    a: 'Two kinds of clients — businesses and personalities. Companies wanting an identity that feels as considered as their work, and individuals who need a presence that carries their voice online.',
-  },
-  {
-    q: 'What is it actually like to work with you?',
-    a: "Personal. We start with the feeling you want people to walk away with, then build everything around it. You are close to the process the whole way, never handed a template and left to guess.",
-  },
-  {
-    q: 'Do you only design logos?',
-    a: 'No. A logo is one small part of a brand. We shape the whole experience — how it looks, how it feels, and how it shows up wherever people meet it.',
-  },
-  {
-    q: 'Where are you based?',
-    a: 'Port Elizabeth, South Africa. We collaborate with clients wherever they are.',
-  },
-];
 ---
 
 <Layout
   title="About | tszuk"
-  description="tszuk is a branding studio in Port Elizabeth building identities that resonate — for companies and personalities alike."
+  description="tszuk is a branding studio in Port Elizabeth building identities that resonate, for companies and personalities alike."
 >
   <div class="about">
-    <section class="about__story" aria-labelledby="about-story">
+    <section class="about__story bleed" aria-labelledby="about-story">
       <p class="about__eyebrow">About tszuk</p>
       <h1 class="about__title" id="about-story">A brand that builds</h1>
-      <p class="about__lead">
+      <p class="about__lead measure">
         tszuk is a branding studio in Port Elizabeth, South Africa. We collaborate with
-        companies and personalities to build identities that resonate — brands people
+        companies and personalities to build identities that resonate, brands people
         feel, not just recognise.
       </p>
-      <p class="about__paragraph">
+      <p class="about__paragraph measure">
         We started tszuk because so much branding stops at the surface. A nice logo, a
         tidy palette, and not much underneath. We wanted to make brands that carry a
-        feeling all the way through — from the first impression to the smallest detail.
+        feeling all the way through, from the first impression to the smallest detail.
       </p>
+      <a class="about__founders-link" href="/founders">
+        Meet the founders <span aria-hidden="true">→</span>
+      </a>
     </section>
 
-    <Minds expanded title="The Founders" />
-
-    <section class="about__vision" aria-labelledby="about-vision">
+    <section class="about__vision bleed" aria-labelledby="about-vision">
       <h2 class="about__section-title" id="about-vision">Our Vision</h2>
-      <p class="about__vision-lead">
+      <p class="about__vision-lead measure">
         When you create an ecommerce site, you are not just building a tool for people
         to buy. You are creating an experience that should feel like your brand.
       </p>
-      <p class="about__paragraph">
+      <p class="about__paragraph measure">
         That belief runs through everything we make. Every page, every interaction, every
         quiet moment of polish is a chance to make someone feel something. We treat every
-        engagement as brand experience — not just delivery.
+        engagement as brand experience, not just delivery.
       </p>
     </section>
 
-    <section class="about__services" aria-label="Services and approach">
-      <Capabilities />
-    </section>
+    <div class="about__process bleed">
+      <ProcessSection />
+    </div>
 
-    <section class="about__faq" aria-labelledby="about-faq">
-      <h2 class="about__section-title" id="about-faq">Common Questions</h2>
-      <dl class="faq">
-        {
-          faqs.map((item) => (
-            <div class="faq__item">
-              <dt class="faq__question">{item.q}</dt>
-              <dd class="faq__answer">{item.a}</dd>
-            </div>
-          ))
-        }
-      </dl>
-    </section>
+    <div class="about__faq bleed">
+      <FaqSection />
+    </div>
 
-    <section class="about__contact" aria-labelledby="about-contact">
+    <section class="about__contact bleed" aria-labelledby="about-contact">
       <h2 class="about__section-title" id="about-contact">Start a Conversation</h2>
-      <p class="about__paragraph">
-        Tell us about the brand you want to build. We read every message.
+      <p class="about__paragraph measure">
+        Leave your email and we will reach out. Tell us about the brand you want to build.
       </p>
       <ContactForm />
     </section>
@@ -90,24 +62,16 @@ const faqs = [
 <style>
   .about {
     background-color: var(--color-bg);
-  }
-
-  .about__story,
-  .about__vision,
-  .about__faq,
-  .about__contact {
-    max-width: var(--content-max-width);
-    margin: 0 auto;
-    padding: var(--section-padding-mobile) 1.5rem;
-  }
-
-  .about__contact {
-    max-width: var(--manifesto-max-width);
+    min-height: 100vh;
   }
 
   .about__story {
-    padding-top: calc(var(--section-padding-mobile) + 1rem);
-    max-width: var(--manifesto-max-width);
+    padding-block: calc(var(--section-padding-mobile) + 2rem) var(--section-padding-mobile);
+  }
+
+  .about__vision,
+  .about__contact {
+    padding-block: var(--section-padding-mobile);
   }
 
   .about__eyebrow {
@@ -119,9 +83,11 @@ const faqs = [
   }
 
   .about__title {
-    font-size: clamp(2.5rem, 8vw, 4.5rem);
+    font-size: clamp(2.75rem, 10vw, 6rem);
     font-weight: var(--font-weight-bold);
-    letter-spacing: -0.02em;
+    text-transform: uppercase;
+    letter-spacing: -0.03em;
+    line-height: 0.95;
     margin-bottom: 1.75rem;
   }
 
@@ -139,21 +105,30 @@ const faqs = [
     margin-bottom: 1.25rem;
   }
 
-  .about__vision {
-    max-width: var(--manifesto-max-width);
+  .about__founders-link {
+    display: inline-block;
+    margin-top: 0.5rem;
+    font-size: 0.95rem;
+    color: var(--color-accent);
+    border-bottom: 1px solid var(--color-accent);
+    padding-bottom: 2px;
+  }
+
+  .about__founders-link span {
+    display: inline-block;
+    transition: transform var(--duration-hover) var(--easing);
+  }
+
+  .about__founders-link:hover span {
+    transform: translateX(4px);
   }
 
   .about__section-title {
-    font-size: clamp(1.25rem, 3vw, 1.5rem);
-    font-weight: var(--font-weight-light);
+    font-size: 0.85rem;
     letter-spacing: var(--letter-spacing-subtitle);
     text-transform: uppercase;
     color: var(--color-muted);
     margin-bottom: 2rem;
-  }
-
-  .about__section-title--center {
-    text-align: center;
   }
 
   .about__vision-lead {
@@ -163,43 +138,20 @@ const faqs = [
     margin-bottom: 1.5rem;
   }
 
-  .faq {
-    margin: 0;
-  }
-
-  .faq__item {
-    padding: 1.75rem 0;
-    border-top: 1px solid var(--color-divider);
-  }
-
-  .faq__item:last-child {
-    border-bottom: 1px solid var(--color-divider);
-  }
-
-  .faq__question {
-    font-size: 1.15rem;
-    font-weight: var(--font-weight-bold);
-    margin-bottom: 0.75rem;
-  }
-
-  .faq__answer {
-    margin: 0;
-    font-size: 1.05rem;
-    line-height: var(--line-height-body);
-    color: var(--color-muted);
-  }
-
   @media (min-width: 900px) {
     .about__story {
-      padding-top: calc(var(--section-padding) + 1rem);
+      padding-block: calc(var(--section-padding) + 1rem) var(--section-padding);
     }
 
-    .about__story,
     .about__vision,
-    .about__faq {
-      padding-left: 2.5rem;
-      padding-right: 2.5rem;
-      padding-bottom: var(--section-padding);
+    .about__contact {
+      padding-block: var(--section-padding);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .about__founders-link span {
+      transition: none;
     }
   }
 </style>

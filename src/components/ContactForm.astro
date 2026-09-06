@@ -1,30 +1,18 @@
 ---
 /**
- * ContactForm — static-safe, Supabase-gated contact form.
+ * ContactForm — email-first, static-safe, Supabase-gated contact form.
  *
- * Progressive enhancement: a visible mailto:hello@tszuk.com link is always
- * present, so with JS off the form degrades to email. With JS on, submissions
- * route through the env-gated Supabase adapter (or a success + mailto fallback
- * when the adapter is disabled). Per-field validation withholds submission.
+ * Asks only for an email (required) plus an optional message. Progressive
+ * enhancement: a visible mailto fallback is always present, so with JS off the
+ * form degrades to email. With JS on, submissions route through the env-gated
+ * Supabase adapter (or a success + mailto fallback when the adapter is
+ * disabled). The contact address is injected into the client script via a
+ * data- attribute so there is no hardcoded literal.
  */
+import { CONTACT_EMAIL } from '../lib/site';
 ---
 
-<form class="contact-form" novalidate>
-  <div class="contact-form__field">
-    <label for="contact-name" class="contact-form__label">Name</label>
-    <input
-      type="text"
-      id="contact-name"
-      name="name"
-      required
-      maxlength="100"
-      autocomplete="name"
-      class="contact-form__input"
-      aria-describedby="error-name"
-    />
-    <p class="contact-form__error" id="error-name" data-error-for="name"></p>
-  </div>
-
+<form class="contact-form" novalidate data-contact-email={CONTACT_EMAIL}>
   <div class="contact-form__field">
     <label for="contact-email" class="contact-form__label">Email</label>
     <input
@@ -40,43 +28,24 @@
     <p class="contact-form__error" id="error-email" data-error-for="email"></p>
   </div>
 
-  <fieldset class="contact-form__fieldset">
-    <legend class="contact-form__label">Project Type</legend>
-    <div class="contact-form__radios">
-      <label class="contact-form__radio">
-        <input type="radio" name="projectType" value="brand-identity-web" />
-        <span>Brand Identity/Web</span>
-      </label>
-      <label class="contact-form__radio">
-        <input type="radio" name="projectType" value="artist-management" />
-        <span>Artist Management</span>
-      </label>
-      <label class="contact-form__radio">
-        <input type="radio" name="projectType" value="other" checked />
-        <span>Other</span>
-      </label>
-    </div>
-  </fieldset>
-
   <div class="contact-form__field">
-    <label for="contact-message" class="contact-form__label">Message</label>
+    <label for="contact-message" class="contact-form__label">
+      Message <span class="contact-form__optional">(optional)</span>
+    </label>
     <textarea
       id="contact-message"
       name="message"
-      required
       maxlength="5000"
-      rows="5"
+      rows="4"
       class="contact-form__input contact-form__textarea"
-      aria-describedby="error-message"
     ></textarea>
-    <p class="contact-form__error" id="error-message" data-error-for="message"></p>
   </div>
 
-  <button type="submit" class="contact-form__submit">Send Inquiry</button>
+  <button type="submit" class="contact-form__submit">Send</button>
 
   <p class="contact-form__fallback">
     Prefer email? Reach us any time at
-    <a href="mailto:hello@tszuk.com">hello@tszuk.com</a>.
+    <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
   </p>
 
   <div class="contact-form__status" aria-live="polite"></div>
@@ -91,6 +60,8 @@
     form.dataset.bound = 'true';
 
     const status = form.querySelector('.contact-form__status') as HTMLElement;
+    const email = form.dataset.contactEmail || '';
+    const mailto = `<a href="mailto:${email}">${email}</a>`;
 
     function setError(field: string, message: string) {
       const el = form!.querySelector(`[data-error-for="${field}"]`) as HTMLElement | null;
@@ -109,63 +80,52 @@
       status.textContent = '';
       status.className = 'contact-form__status';
 
-      const name = (form.querySelector('[name="name"]') as HTMLInputElement).value.trim();
-      const email = (form.querySelector('[name="email"]') as HTMLInputElement).value.trim();
+      const emailValue = (
+        form.querySelector('[name="email"]') as HTMLInputElement
+      ).value.trim();
       const message = (
         form.querySelector('[name="message"]') as HTMLTextAreaElement
       ).value.trim();
-      const projectType =
-        (form.querySelector('[name="projectType"]:checked') as HTMLInputElement)?.value ||
-        'other';
 
-      // Per-field validation.
-      let valid = true;
-      if (!name) {
-        setError('name', 'Please enter your name.');
-        valid = false;
-      }
-      if (!email) {
+      // Email is the only required field.
+      if (!emailValue) {
         setError('email', 'Please enter your email.');
-        valid = false;
-      } else if (!isValidEmail(email)) {
+        return;
+      }
+      if (!isValidEmail(emailValue)) {
         setError('email', 'Please enter a valid email address.');
-        valid = false;
+        return;
       }
-      if (!message) {
-        setError('message', 'Please enter a message.');
-        valid = false;
-      }
-      if (!valid) return;
 
       const submitBtn = form.querySelector('.contact-form__submit') as HTMLButtonElement;
       submitBtn.disabled = true;
       submitBtn.textContent = 'Sending…';
 
       try {
-        const result = await submitContact({ name, email, message, projectType });
+        const result = await submitContact({
+          email: emailValue,
+          message: message || undefined,
+        });
 
         if (result.status === 'sent') {
-          status.textContent = 'Inquiry received. We will be in touch shortly.';
+          status.textContent = 'Thanks. We will be in touch shortly.';
           status.className = 'contact-form__status contact-form__status--success';
           form.reset();
         } else if (result.status === 'fallback') {
-          status.innerHTML =
-            'Thanks! Please also reach us at <a href="mailto:hello@tszuk.com">hello@tszuk.com</a>.';
+          status.innerHTML = `Thanks! Please also reach us at ${mailto}.`;
           status.className = 'contact-form__status contact-form__status--success';
           form.reset();
         } else {
           // error — retain entered values, offer mailto fallback.
-          status.innerHTML =
-            'Your message could not be sent. Please email us at <a href="mailto:hello@tszuk.com">hello@tszuk.com</a>.';
+          status.innerHTML = `Your message could not be sent. Please email us at ${mailto}.`;
           status.className = 'contact-form__status contact-form__status--error';
         }
       } catch {
-        status.innerHTML =
-          'Your message could not be sent. Please email us at <a href="mailto:hello@tszuk.com">hello@tszuk.com</a>.';
+        status.innerHTML = `Your message could not be sent. Please email us at ${mailto}.`;
         status.className = 'contact-form__status contact-form__status--error';
       } finally {
         submitBtn.disabled = false;
-        submitBtn.textContent = 'Send Inquiry';
+        submitBtn.textContent = 'Send';
       }
     });
   }
@@ -195,6 +155,13 @@
     text-transform: uppercase;
   }
 
+  .contact-form__optional {
+    font-weight: var(--font-weight-regular);
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--color-muted);
+  }
+
   .contact-form__input {
     background: transparent;
     border: none;
@@ -213,7 +180,7 @@
 
   .contact-form__textarea {
     resize: vertical;
-    min-height: 120px;
+    min-height: 100px;
   }
 
   .contact-form__error {
@@ -221,32 +188,6 @@
     color: var(--color-error);
     min-height: 1em;
     margin: 0;
-  }
-
-  .contact-form__fieldset {
-    border: none;
-    padding: 0;
-    margin: 0;
-  }
-
-  .contact-form__radios {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    margin-top: 0.5rem;
-  }
-
-  .contact-form__radio {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    font-size: 0.9rem;
-    color: var(--color-muted);
-    cursor: pointer;
-  }
-
-  .contact-form__radio input[type='radio'] {
-    accent-color: var(--color-accent);
   }
 
   .contact-form__submit {

@@ -1,6 +1,7 @@
 ---
 import { Image } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
+import ScopeMarker from './ScopeMarker.astro';
 
 interface Props {
   name: string;
@@ -49,9 +50,7 @@ const revealDelay = `${Math.min(index, 6) * 80}ms`;
   <div class="card__body">
     <h3 class="card__name">{name}</h3>
     <p class="card__description">{shortDescription}</p>
-    <ul class="card__scope" aria-label="Scope of work">
-      {scope.map((pill) => <li class="card__pill">{pill}</li>)}
-    </ul>
+    <ScopeMarker scope={scope} variant="inline" align={group === 'business' ? 'start' : 'center'} />
   </div>
 </a>
 
@@ -86,9 +85,11 @@ const revealDelay = `${Math.min(index, 6) * 80}ms`;
     border-radius: clamp(0px, 0.75vw, 12px);
   }
 
-  /* Personality — round treatment. */
+  /* Personality — round treatment, capped diameter so images do not dominate. */
   .card--personality .card__frame {
     border-radius: 50%;
+    max-width: var(--personality-image-max);
+    margin-inline: auto;
   }
 
   .card__image {
@@ -129,30 +130,6 @@ const revealDelay = `${Math.min(index, 6) * 80}ms`;
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
-  }
-
-  .card__scope {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    justify-content: center;
-  }
-
-  .card--business .card__scope {
-    justify-content: flex-start;
-  }
-
-  .card__pill {
-    font-size: 0.75rem;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: var(--color-muted);
-    border: 1px solid var(--color-divider);
-    border-radius: 999px;
-    padding: 0.3rem 0.75rem;
   }
 
   @media (prefers-reduced-motion: reduce) {

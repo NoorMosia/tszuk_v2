@@ -1,23 +1,25 @@
 /* === Design System Tokens === */
 :root {
-  /* Colors — warm, minimal palette (warm neutrals + single warm terracotta accent).
-     No green/cyan hue components remain. Contrast verified against WCAG 2.1 AA. */
-  --color-bg: #FAF6F1;          /* warm off-white page background */
-  --color-surface: #FFFDFB;     /* warm white cards/surfaces */
-  --color-white: #FFFDFB;       /* legacy alias -> warm white */
-  --color-sage: #F2E7DA;        /* warm cream tint (section wash) */
-  --color-sage-tint: #F7EFE6;   /* lighter warm tint (image frame bg) */
-  --color-accent: #9E4321;      /* single warm terracotta accent (darkened for AA text) */
+  /* Colors — warm greige / soft platinum palette (warm desaturated neutrals +
+     single warm terracotta accent). No green/cyan hue components. Contrast
+     verified against WCAG 2.1 AA. */
+  --color-bg: #EDEAE4;          /* warm greige page background */
+  --color-surface: #F6F4EF;     /* warm platinum cards/surfaces */
+  --color-white: #F6F4EF;       /* legacy alias -> warm surface */
+  --color-sage: #E4DFD6;        /* warm greige tint (section wash) */
+  --color-sage-tint: #EEEAE2;   /* lighter greige tint (image frame bg) */
+  --color-accent: #9E4321;      /* single warm terracotta accent (AA text on greige) */
   --color-accent-hover: #82361A;/* darker accent for hover states */
   --color-accent-soft: #C47A50; /* warm complementary tone (decorative only) */
-  --color-text: #231A15;        /* warm near-black body text */
-  --color-dark: #2A211B;        /* warm dark (footer bg) */
-  --color-divider: #EAE0D5;     /* warm hairline divider */
-  --color-muted: #6F6157;       /* warm muted text (darkened for AA body) */
+  --color-text: #201C18;        /* warm near-black body text */
+  --color-dark: #201C18;        /* warm dark (footer bg) */
+  --color-divider: #D9D3C9;     /* warm greige hairline divider */
+  --color-muted: #665D54;       /* warm muted text (AA body on greige) */
   --color-error: #B4402A;       /* semantic error text */
 
   /* Typography */
   --font-family: 'Inter', sans-serif;
+  --font-display: 'Space Grotesk', 'Inter', system-ui, sans-serif; /* headings & client names */
   --font-weight-light: 300;
   --font-weight-regular: 400;
   --font-weight-bold: 700;
@@ -29,6 +31,14 @@
   --section-padding-mobile: 64px;
   --content-max-width: 1200px;
   --manifesto-max-width: 650px;
+
+  /* Layout system (v2): full-bleed width on a 12-column grid */
+  --edge: clamp(1rem, 4vw, 2.5rem);          /* full-bleed side padding */
+  --reading-measure: 65ch;                    /* narrow prose measure */
+  --grid-gutter: 1.5rem;                       /* 12-col grid gutter */
+  --rule-heavy: 2px;                           /* section boundary rule */
+  --rule-hair: 1px;                            /* row hairline */
+  --personality-image-max: clamp(140px, 18vw, 220px); /* max round portrait diameter */
 
   /* Motion */
   --easing: cubic-bezier(0.25, 1, 0.5, 1);
@@ -88,8 +98,25 @@ body {
 
 h1, h2, h3, h4, h5, h6 {
   margin: 0;
+  font-family: var(--font-display);
   font-weight: var(--font-weight-bold);
   line-height: 1.2;
+}
+
+/* === Layout system utilities (v2) === */
+.bleed {
+  width: 100%;
+  padding-inline: var(--edge);
+}
+
+.grid-12 {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: var(--grid-gutter);
+}
+
+.measure {
+  max-width: var(--reading-measure);
 }
 
 p {
@@ -119,6 +146,24 @@ button {
 :focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
+}
+
+/* === Lenis smooth scroll === */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: clip;
 }
 
 /* === No-JS Fallback === */

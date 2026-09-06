@@ -1,0 +1,62 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Minds from '../components/Minds.astro';
+---
+
+<Layout
+  title="Founders | tszuk"
+  description="Meet Zukisa and Tshepo, the co-founders of tszuk, the creative and systems minds behind a brand that builds."
+>
+  <div class="founders">
+    <section class="founders__intro bleed" aria-labelledby="founders-intro">
+      <p class="founders__eyebrow">The people behind tszuk</p>
+      <h1 class="founders__title" id="founders-intro">The Founders</h1>
+      <p class="founders__lead measure">
+        Two people, one studio. A creative director and a systems director who build brands
+        that feel considered on the surface and hold together underneath.
+      </p>
+    </section>
+
+    <Minds expanded title="Meet the Studio" />
+  </div>
+</Layout>
+
+<style>
+  .founders {
+    background-color: var(--color-bg);
+  }
+
+  .founders__intro {
+    padding-block: calc(var(--section-padding-mobile) + 2rem) var(--section-padding-mobile);
+  }
+
+  .founders__eyebrow {
+    font-size: 0.85rem;
+    letter-spacing: var(--letter-spacing-subtitle);
+    text-transform: uppercase;
+    color: var(--color-muted);
+    margin-bottom: 1rem;
+  }
+
+  .founders__title {
+    font-size: clamp(2.75rem, 10vw, 6rem);
+    font-weight: var(--font-weight-bold);
+    text-transform: uppercase;
+    letter-spacing: -0.03em;
+    line-height: 0.95;
+    margin-bottom: 1.75rem;
+  }
+
+  .founders__lead {
+    font-size: clamp(1.15rem, 2.5vw, 1.5rem);
+    font-weight: var(--font-weight-light);
+    line-height: 1.5;
+    color: var(--color-muted);
+  }
+
+  @media (min-width: 900px) {
+    .founders__intro {
+      padding-block: calc(var(--section-padding) + 1rem) var(--section-padding);
+    }
+  }
+</style>

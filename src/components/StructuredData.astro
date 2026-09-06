@@ -1,24 +1,30 @@
 ---
 import type { CollectionEntry } from 'astro:content';
+import {
+  SITE_DOMAIN,
+  ORG_NAME,
+  ORG_DESCRIPTION,
+  SOCIAL_SAME_AS,
+  FAQ_ITEMS,
+  type FaqItem,
+} from '../lib/site';
 
 interface Props {
-  scope: 'site' | 'case-study';
+  scope: 'site' | 'case-study' | 'faq';
   entry?: CollectionEntry<'caseStudies'>;
+  faqItems?: FaqItem[];
 }
 
-const { scope, entry } = Astro.props;
+const { scope, entry, faqItems = FAQ_ITEMS } = Astro.props;
 
-const SITE_URL = 'https://tszuk.co.za';
-const ORG_NAME = 'tszuk';
-const ORG_DESCRIPTION =
-  'tszuk is a branding studio in Port Elizabeth, South Africa, collaborating with companies and personalities to build identities that resonate.';
+const SITE_URL = SITE_DOMAIN;
 
 type JsonLd = Record<string, unknown>;
 
 /**
  * Each builder returns `null` when a required property is missing, so the
  * component omits the JSON-LD block entirely rather than emitting incomplete
- * or invalid structured data (Req 8.5).
+ * or invalid structured data (Req 8.5, 15.6).
  */
 function buildOrganization(): JsonLd | null {
   if (!ORG_NAME || !ORG_DESCRIPTION || !SITE_URL) return null;
@@ -28,6 +34,7 @@ function buildOrganization(): JsonLd | null {
     name: ORG_NAME,
     description: ORG_DESCRIPTION,
     url: SITE_URL,
+    sameAs: SOCIAL_SAME_AS,
     founder: [
       { '@type': 'Person', name: 'Zukisa' },
       { '@type': 'Person', name: 'Tshepo' },
@@ -35,10 +42,7 @@ function buildOrganization(): JsonLd | null {
   };
 }
 
-function buildPerson(
-  name: string,
-  jobTitle: string
-): JsonLd | null {
+function buildPerson(name: string, jobTitle: string): JsonLd | null {
   if (!name || !jobTitle) return null;
   return {
     '@context': 'https://schema.org',
@@ -61,6 +65,20 @@ function buildCreativeWork(e?: CollectionEntry<'caseStudies'>): JsonLd | null {
   };
 }
 
+function buildFaqPage(items: FaqItem[]): JsonLd | null {
+  const valid = items.filter((i) => i.question && i.answer);
+  if (valid.length === 0) return null;
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: valid.map((i) => ({
+      '@type': 'Question',
+      name: i.question,
+      acceptedAnswer: { '@type': 'Answer', text: i.answer },
+    })),
+  };
+}
+
 let blocks: JsonLd[] = [];
 
 if (scope === 'site') {
@@ -72,6 +90,9 @@ if (scope === 'site') {
 } else if (scope === 'case-study') {
   const work = buildCreativeWork(entry);
   if (work) blocks = [work];
+} else if (scope === 'faq') {
+  const faq = buildFaqPage(faqItems);
+  if (faq) blocks = [faq];
 }
 ---
 

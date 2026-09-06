@@ -9,10 +9,8 @@
  */
 
 export interface ContactSubmission {
-  name: string;
   email: string;
-  message: string;
-  projectType?: string;
+  message?: string;
 }
 
 export type ContactResult =
