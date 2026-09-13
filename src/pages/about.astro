@@ -18,10 +18,11 @@ import Layout from '../layouts/Layout.astro';
 
     <section class="about__vision bleed" aria-labelledby="about-vision">
       <h2 class="about__section-title" id="about-vision">Our Vision</h2>
-      <p class="about__paragraph measure">
-        "When you create an ecommerce site, you are not just building a tool for people
-        to buy. You are creating an experience that should feel like your brand."
-      </p>
+      
+      <blockquote class="about__quote">
+        "When you create an ecommerce site, you are not just building a tool for people to buy. You are creating an experience that should feel like your brand."
+      </blockquote>
+
       <p class="about__paragraph measure">
         That belief runs through everything we make. Every page, every interaction, every
         quiet moment of polish is a chance to make someone feel something. We treat every
@@ -44,44 +45,62 @@ import Layout from '../layouts/Layout.astro';
   }
 
   .about__story {
-    padding-block: calc(var(--section-padding-mobile) + 2rem) 2rem;
+    padding-block: calc(var(--section-padding-mobile) + 2rem) 3rem;
+    border-bottom: var(--rule-hair) solid var(--color-divider);
   }
 
   .about__vision {
-    padding-block: 2rem var(--section-padding-mobile);
+    padding-block: 3rem var(--section-padding-mobile);
   }
 
   .about__eyebrow {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     font-weight: var(--font-weight-bold);
     letter-spacing: var(--letter-spacing-subtitle);
     text-transform: uppercase;
-    color: var(--color-muted);
-    margin-bottom: 1.5rem;
+    color: var(--color-accent);
+    margin-bottom: 2.5rem;
   }
 
   .about__paragraph {
-    font-size: 1.05rem;
-    line-height: var(--line-height-body);
+    font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+    line-height: 1.7;
     color: var(--color-text);
-    margin-bottom: 1.25rem;
+    margin-bottom: 1.5rem;
+    font-weight: var(--font-weight-light);
   }
 
   .about__section-title {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     letter-spacing: var(--letter-spacing-subtitle);
     text-transform: uppercase;
-    color: var(--color-muted);
-    margin-bottom: 2rem;
+    color: var(--color-accent);
+    font-weight: var(--font-weight-bold);
+    margin-bottom: 2.5rem;
+  }
+
+  .about__quote {
+    font-size: clamp(1.2rem, 3vw, 1.6rem);
+    font-weight: var(--font-weight-light);
+    line-height: 1.6;
+    color: var(--color-text);
+    margin: 0 auto 2.5rem;
+    max-width: var(--manifesto-max-width);
+    padding: 0;
+    border: none;
   }
 
   @media (min-width: 900px) {
     .about__story {
-      padding-block: calc(var(--section-padding) + 1rem) 3rem;
+      padding-block: calc(var(--section-padding) + 1rem) 4rem;
     }
 
     .about__vision {
-      padding-block: 3rem var(--section-padding);
+      padding-block: 4rem var(--section-padding);
+    }
+
+    .about__paragraph {
+      font-size: clamp(1.15rem, 2.8vw, 1.5rem);
     }
   }
 </style>

@@ -46,7 +46,6 @@ const revealDelay = `${Math.min(index, 6) * 80}ms`;
       <a class="brow__name-link" href={href}>{data.name}</a>
     </h3>
     <p class="brow__description">{data.description}</p>
-    <ScopeMarker scope={data.scope} variant="inline" align="start" class="brow__scope" />
     {
       data.liveLink && (
         <a
@@ -66,10 +65,10 @@ const revealDelay = `${Math.min(index, 6) * 80}ms`;
   .brow {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 1.5rem;
+    gap: 0;
     align-items: center;
-    padding-block: clamp(2rem, 5vw, 4rem);
-    border-top: var(--rule-hair) solid var(--color-divider);
+    padding-block: 0;
+    border-top: none;
     opacity: 0;
     transform: translateY(20px);
     transition:
@@ -86,7 +85,7 @@ const revealDelay = `${Math.min(index, 6) * 80}ms`;
     display: block;
     overflow: hidden;
     background-color: var(--color-sage-tint);
-    border-radius: clamp(0px, 0.75vw, 12px);
+    border-radius: 0;
     aspect-ratio: 5 / 4;
   }
 
@@ -106,10 +105,11 @@ const revealDelay = `${Math.min(index, 6) * 80}ms`;
     flex-direction: column;
     gap: 1.75rem;
     align-items: flex-start;
+    padding: clamp(2rem, 5vw, 4rem);
   }
 
   .brow__name {
-    font-size: clamp(1.75rem, 4vw, 3rem);
+    font-size: clamp(1.225rem, 2.8vw, 2.1rem);
     font-weight: var(--font-weight-bold);
     text-transform: uppercase;
     letter-spacing: -0.01em;
@@ -150,7 +150,7 @@ const revealDelay = `${Math.min(index, 6) * 80}ms`;
   @media (min-width: 768px) {
     .brow {
       grid-template-columns: 1fr 1fr;
-      gap: clamp(2rem, 5vw, 5rem);
+      gap: 0;
     }
 
     /* Image left (default source order). */

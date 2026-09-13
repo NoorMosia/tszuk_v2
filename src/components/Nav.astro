@@ -312,19 +312,20 @@ const current = normalize(Astro.url.pathname);
       align-items: flex-start;
       gap: 0;
       /* Collapsed by default; expands when the toggle is activated. */
-      display: grid;
-      grid-template-rows: 0fr;
+      display: flex;
+      flex-direction: column;
+      max-height: 0;
       overflow: hidden;
-      transition: grid-template-rows var(--duration-hover) var(--easing);
+      transition: max-height var(--duration-hover) var(--easing);
     }
 
     .nav__list > li {
-      min-height: 0;
+      min-height: auto;
       width: 100%;
     }
 
     .nav--open .nav__list {
-      grid-template-rows: 1fr;
+      max-height: 50vh;
       margin-top: 0.75rem;
       padding-top: 0.75rem;
       border-top: var(--rule-hair) solid var(--color-divider);
@@ -339,7 +340,7 @@ const current = normalize(Astro.url.pathname);
     /* No-JS: without the toggle handler, show the links as a plain stacked
        list so navigation always works. */
     :global(.no-js) .nav__list {
-      grid-template-rows: 1fr;
+      max-height: 50vh;
       margin-top: 0.75rem;
       padding-top: 0.75rem;
       border-top: var(--rule-hair) solid var(--color-divider);

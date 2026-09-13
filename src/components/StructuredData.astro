@@ -34,10 +34,12 @@ function buildOrganization(): JsonLd | null {
     name: ORG_NAME,
     description: ORG_DESCRIPTION,
     url: SITE_URL,
+    logo: `${SITE_URL}/logo.png`,
+    image: `${SITE_URL}/og-image.png`,
     sameAs: SOCIAL_SAME_AS,
     founder: [
       { '@type': 'Person', name: 'Zukisa' },
-      { '@type': 'Person', name: 'Tshepo' },
+      { '@type': 'Person', name: 'Mosia' },
     ],
   };
 }
@@ -84,8 +86,8 @@ let blocks: JsonLd[] = [];
 if (scope === 'site') {
   blocks = [
     buildOrganization(),
-    buildPerson('Zukisa', 'Co-Founder & Creative Director'),
-    buildPerson('Tshepo', 'Co-Founder & Systems Director'),
+    buildPerson('Zukisa', 'Co-Founder & Project Manager'),
+    buildPerson('Mosia', 'Co-Founder & Systems Director'),
   ].filter((b): b is JsonLd => b !== null);
 } else if (scope === 'case-study') {
   const work = buildCreativeWork(entry);

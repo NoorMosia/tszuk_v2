@@ -16,12 +16,12 @@ const { expanded = false, title = 'Behind the Brand', showTitle = true } =
   Astro.props;
 
 const zukisaBio = [
-  'Zukisa leads the creative heart of tszuk. She treats every brand as a feeling first and a look second, the sense someone should carry away long after they have closed the tab or left the room.',
-  'Her instinct is for restraint: knowing what to leave out so the things that matter land harder. It is the reason tszuk brands feel considered rather than decorated.',
+  'Zukisa ensures every project runs like clockwork. He orchestrates the whole process, from understanding what a client really needs to making sure the final work delivers on the vision.',
+  'He keeps the momentum going and the standards high, always thinking about what will actually resonate with the people it\'s made for.',
 ];
 
 const tshepoBio = [
-  'Tshepo makes the vision hold together. He builds the systems and experiences that carry a brand across every touchpoint, so the polish you feel on the surface is matched by something solid underneath.',
+  'Mosia makes the vision hold together. He builds the systems and experiences that carry a brand across every touchpoint, so the polish you feel on the surface is matched by something solid underneath.',
   'He is happiest where design meets logic, turning a beautiful idea into something that actually works, quietly and reliably, for the people who use it.',
 ];
 ---
@@ -37,19 +37,18 @@ const tshepoBio = [
         <div class="minds__blob minds__blob--green" aria-hidden="true"></div>
         <Image
           src={zukisa}
-          alt="Zukisa, Co-Founder and Creative Director at tszuk"
+          alt="Zukisa, Co-Founder and Project Manager at tszuk"
           width={400}
           height={400}
           class="minds__portrait"
           loading="lazy"
         />
         <div class="minds__overlay">
-          <span class="minds__tag">Creative Direction</span>
+          <span class="minds__tag">Project Management</span>
         </div>
       </div>
       <h3 class="minds__name">Zukisa</h3>
-      <p class="minds__role">Co-Founder & Creative Director</p>
-      <p class="minds__qual">Bachelor in Design & Creative Direction</p>
+      <p class="minds__role">Co-Founder & Project Manager</p>
       {
         expanded && (
           <div class="minds__bio">
@@ -65,7 +64,7 @@ const tshepoBio = [
         <div class="minds__blob minds__blob--red" aria-hidden="true"></div>
         <Image
           src={tshepo}
-          alt="Tshepo, Co-Founder and Systems Director at tszuk"
+          alt="Mosia, Co-Founder and Systems Director at tszuk"
           width={400}
           height={400}
           class="minds__portrait"
@@ -75,9 +74,8 @@ const tshepoBio = [
           <span class="minds__tag">Systems & Engineering</span>
         </div>
       </div>
-      <h3 class="minds__name">Tshepo</h3>
+      <h3 class="minds__name">Mosia</h3>
       <p class="minds__role">Co-Founder & Systems Director</p>
-      <p class="minds__qual">BSc Computer Science & Mathematics</p>
       {
         expanded && (
           <div class="minds__bio">
